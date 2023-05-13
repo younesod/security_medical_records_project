@@ -1,0 +1,25 @@
+Etape : 
+Créer base de données users
+créer classe users
+créer vue générique pour login/register... > php artisan ui:auth
+Register/Login/Logout fait
+ajout de user admin au démarrage du serveur avec database/seeders -> php artisan make:seed UsersTableSeeder
+ensuite php artisan db:seed
+Ajout d'un UserController pour changer les roles des users
+
+
+A FAIRE :
+Faut que je créer une table PATIENT(avec un docteur fourni) foreign key vers uniquement les users ayant comme role patient
+Faut que je créer une table DOCTOR(one to many patients) foreign key vers user uniquement role doctor
+
+
+
+
+COMMENT LANCER LE PROJET : 
+Configuration du .env(je l'ai pas mit dans le git.ignore donc normalement tu dois rien changer)
+composer update(pour mettre à jour)
+composer install (pour installer les librairies pour le projet)
+php artisan migrate:reset (pour clean les tables de la database)
+php artisan migrate (pour créer les tables contenu dans les migrations (database/migrations)
+php artisan db:seed(pour ajouter des records (surtout l'admin) dans la database)
+php artisan serve (lancer le serveur)
