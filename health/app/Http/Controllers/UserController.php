@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    /**
+     * Show the user form for an admin to manage users.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function showUserForm()
     {
         $users = User::all()->except(Auth::id());
@@ -36,12 +42,25 @@ class UserController extends Controller
             $user = User::find($request->post('user_id'));
             $user->role = $request->post('role');
             $user->save();
+            if ($request->post('role') === 'doctor') {
+                Doctor::create([
+                    'user_id' => $user->id,
+                ]);
+            }
             return redirect()->back()->with('success', 'User role updated successfully!');
         } else {
             return redirect()->back()->with('error', 'You don\'t have the necessary permissions to perform this action.');
         }
     }
 
+    /**
+     * Delete a user and their associated records from the database.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
     public function deleteUser(Request $request)
     {
         $user = User::where('email', $request->post('user_email'))->firstOrFail();

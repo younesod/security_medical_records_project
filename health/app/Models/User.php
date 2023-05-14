@@ -51,4 +51,25 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Verify if the user is a patient.
+     */
+    public function isPatient(){
+        return $this->role==='patient';
+    }
+    /**
+     * Verify if the user is a doctor.
+     */
+    public function isDoctor(){
+        return $this->role==='doctor';
+    }
+
+    /**
+     * Get the patient record associated with the user.
+     */
+    public function patient()
+    {
+        return $this->hasOne(Patient::class);
+    }
 }

@@ -44,6 +44,11 @@
                                 <a class="nav-link" href="{{ route('showUsers') }}">{{ __('Assign Role') }}</a>
                             </li>
                         @endif
+                        @if (Auth::check() && Auth::user()->isPatient())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('showDoctors') }}">{{ __('Doctors') }}</a>
+                            </li>
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->

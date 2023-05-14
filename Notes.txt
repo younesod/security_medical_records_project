@@ -6,11 +6,19 @@ Register/Login/Logout fait
 ajout de user admin au démarrage du serveur avec database/seeders -> php artisan make:seed UsersTableSeeder
 ensuite php artisan db:seed
 Ajout d'un UserController pour changer les roles des users
+Ajout de tables pour patient et doctor
+Ajout de données au démarrage(db : seed)
+Ajout d'un PatientDoctorController pour ajouter doctor au patient
+Ajout d'un middleware (CheckRole) et ajout dans Kernel pour restreindre les pages au différents roles (patient ne peut pas aller sur la page admin en tappant dans l'url)
+Ajout dans route le chemin et la restreinte des urls
+
+
+
 
 
 A FAIRE :
-Faut que je créer une table PATIENT(avec un docteur fourni) foreign key vers uniquement les users ayant comme role patient
-Faut que je créer une table DOCTOR(one to many patients) foreign key vers user uniquement role doctor
+Montrer le docteur du patient (soit en ajoutant une page soit en l'ajoutant dans la page Doctors)
+Créer une page pour que le docteur puisse ajouter les patients (avec leur consentement)
 
 
 
@@ -23,3 +31,23 @@ php artisan migrate:reset (pour clean les tables de la database)
 php artisan migrate (pour créer les tables contenu dans les migrations (database/migrations)
 php artisan db:seed(pour ajouter des records (surtout l'admin) dans la database)
 php artisan serve (lancer le serveur)
+
+
+
+//////////////Pour développer ce projet en Laravel, voici une approche possible :
+
+Modélisation de la base de données : à partir des informations fournies dans le document, vous pouvez modéliser la base de données en utilisant les outils fournis par Laravel (par exemple, Eloquent ORM). Vous pouvez créer les tables pour les utilisateurs, les médecins, les patients, les dossiers médicaux et les fichiers, ainsi que les relations entre eux.
+
+Mise en place de l'authentification : vous pouvez utiliser le système d'authentification fourni par Laravel pour permettre aux utilisateurs de se connecter et de s'inscrire. Vous pouvez également ajouter une fonctionnalité de révocation de l'authentification pour les utilisateurs.
+
+Gestion des utilisateurs : vous pouvez créer une interface pour permettre aux administrateurs d'approuver ou de supprimer les comptes des médecins et des patients.
+
+Gestion des dossiers médicaux : vous pouvez permettre aux patients de consulter leurs dossiers médicaux et aux médecins de consulter les dossiers des patients qui leur sont associés. Vous pouvez également permettre aux patients de modifier, de supprimer et d'ajouter des fichiers à leurs dossiers médicaux, ainsi qu'aux médecins de faire de même pour les patients qui leur sont associés.
+
+Gestion des rendez-vous : vous pouvez permettre aux patients de prendre des rendez-vous avec leurs médecins et de voir les rendez-vous à venir. Les médecins peuvent également voir leur emploi du temps et les rendez-vous prévus.
+
+Sécurité : vous pouvez implémenter des mesures de sécurité pour protéger les données stockées sur le serveur, telles que la cryptographie pour les fichiers stockés, la protection contre les attaques par injection de code et la limitation des tentatives de connexion pour prévenir les attaques par force brute.
+
+Tests et déploiement : vous pouvez tester le projet pour vous assurer qu'il fonctionne correctement et le déployer sur un serveur de production.
+
+Il s'agit d'une approche générale pour le développement de ce projet en utilisant Laravel. Vous pouvez ajuster cette approche en fonction de vos compétences en programmation et de vos besoins spécifiques.

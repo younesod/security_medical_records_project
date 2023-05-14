@@ -27,7 +27,11 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
-Route::get('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'showUserForm'])->name('showUsers');
+Route::get('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'showUserForm'])->name('showUsers')->middleware('auth', 'role:admin');
 
-Route::post('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'updateUserRole'])->name('admin_change_role');
-Route::delete('/admin/deleteRole',[\App\Http\Controllers\UserController::class,'deleteUser'])->name('admin_delete_user');
+Route::post('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'updateUserRole'])->name('admin_change_role')->middleware('auth', 'role:admin');
+Route::delete('/admin/deleteRole',[\App\Http\Controllers\UserController::class,'deleteUser'])->name('admin_delete_user')->middleware('auth', 'role:admin');
+
+
+Route::get('/patient',[\App\Http\Controllers\PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
+Route::post('/patient/addDoctor',[\App\Http\Controllers\PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
