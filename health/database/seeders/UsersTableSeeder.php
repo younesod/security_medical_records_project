@@ -23,7 +23,7 @@ class UsersTableSeeder extends Seeder
             'role'=>'admin',
         ]);
 
-        User::create([
+        $doc=User::create([
             'name'=>'Maboul',
             'email'=>'drmaboul@gmail.com',
             'password' => Hash::make('maboul',['rounds'=>12]),
@@ -47,10 +47,16 @@ class UsersTableSeeder extends Seeder
             'user_id'=>$user->id,
         ]);
 
+        Doctor::create([
+            'user_id'=>$doc->id,
+        ]);
+
         Patient::create([
             'user_id'=>$user_patient->id,
             'doctor_id'=>$doctor->id,
-        ]);  
+        ]); 
+
+
 
     }
 }

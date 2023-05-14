@@ -65,6 +65,7 @@ class UserController extends Controller
     {
         $user = User::where('email', $request->post('user_email'))->firstOrFail();
         $user->delete();
+        //verifier si role docteur
 
         return redirect()->back()->with('success', 'The user has been deleted with success');
     }

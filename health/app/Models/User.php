@@ -55,14 +55,16 @@ class User extends Authenticatable
     /**
      * Verify if the user is a patient.
      */
-    public function isPatient(){
-        return $this->role==='patient';
+    public function isPatient()
+    {
+        return $this->role === 'patient';
     }
     /**
      * Verify if the user is a doctor.
      */
-    public function isDoctor(){
-        return $this->role==='doctor';
+    public function isDoctor()
+    {
+        return $this->role === 'doctor';
     }
 
     /**
@@ -71,5 +73,13 @@ class User extends Authenticatable
     public function patient()
     {
         return $this->hasOne(Patient::class);
+    }
+
+    /**
+     * Get the doctor record associated with the user.
+     */
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class);
     }
 }

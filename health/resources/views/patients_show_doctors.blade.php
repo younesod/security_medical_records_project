@@ -34,7 +34,7 @@
                                     <label for="doctor_id">Doctor</label>
                                     <select class="form-control mt-2 " id="doctor" name="doctor_id">
                                         @foreach ($doctors as $doctor)
-                                            <option value="{{ $doctor->doctor_id }}">Dr. {{ $doctor->user->name }}</option>
+                                            <option type="number" value="{{ $doctor->doctor_id }}">Dr. {{ $doctor->user->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

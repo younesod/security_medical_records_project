@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,17 +29,21 @@ class PatientDoctorController extends Controller
     public function addDoctor(Request $request)
     {
         //Récuperer tous les docteurs
-        $doctors = Doctor::all();
+        // $doctors = Doctor::all();
+        $doctor=Doctor::where('doctor_id',$request->post('doctor_id'));
+
 
         // Récupérer l'ID du docteur sélectionné
-        $doctorId = $request->post('doctor_id');
-
-        // Récupérer le patient courant
-        $patient = Auth::user()->patient;
-
-        // Mettre à jour le docteur du patient
-        $patient->doctor_id = $doctorId;
-        $patient->save();
+        $doctorId = (int)$request->post('doctor_id');
+        $unsignedDoctorId = abs($doctorId);
+        if($doctorId!=null){
+            // Récupérer le patient courant
+            $patient = Auth::user()->patient;
+            // Mettre à jour le docteur du patient
+            $patient->doctor_id = $unsignedDoctorId;
+            $patient->save();
+            //////ERROR DOES NOT ADD IN THE DATABASE
+        }
 
         return redirect()->back()->with('success', 'Doctor added for the patient successfully!');
     }

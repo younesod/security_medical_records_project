@@ -16,6 +16,7 @@ Ajout dans route le chemin et la restreinte des urls
 
 
 
+
 A FAIRE :
 Montrer le docteur du patient (soit en ajoutant une page soit en l'ajoutant dans la page Doctors)
 Créer une page pour que le docteur puisse ajouter les patients (avec leur consentement)
@@ -27,10 +28,13 @@ COMMENT LANCER LE PROJET :
 Configuration du .env(je l'ai pas mit dans le git.ignore donc normalement tu dois rien changer)
 composer update(pour mettre à jour)
 composer install (pour installer les librairies pour le projet)
-php artisan migrate:reset (pour clean les tables de la database)
+[php artisan migrate:reset (pour clean les tables de la database)
 php artisan migrate (pour créer les tables contenu dans les migrations (database/migrations)
 php artisan db:seed(pour ajouter des records (surtout l'admin) dans la database)
-php artisan serve (lancer le serveur)
+php artisan serve (lancer le serveur)]
+# refresh la database et executer les seeds
+ou sinon php artisan migrate:fresh --seed 
+
 
 
 
