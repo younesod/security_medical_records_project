@@ -6,6 +6,7 @@ use App\Models\Doctor;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Patient;
 
 class PatientDoctorController extends Controller
 {
@@ -26,25 +27,29 @@ class PatientDoctorController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
+  
     public function addDoctor(Request $request)
-    {
-        //Récuperer tous les docteurs
-        // $doctors = Doctor::all();
-        $doctor=Doctor::where('doctor_id',$request->post('doctor_id'));
+{
+    // Récupérer l'ID du docteur sélectionné
+    $doctorId = $request->post('doctor_id');
 
-
-        // Récupérer l'ID du docteur sélectionné
-        $doctorId = (int)$request->post('doctor_id');
-        $unsignedDoctorId = abs($doctorId);
-        if($doctorId!=null){
-            // Récupérer le patient courant
+    if ($doctorId != null) {
+        // Récupérer le patient courant
+        if (Auth::check()) {
             $patient = Auth::user()->patient;
-            // Mettre à jour le docteur du patient
-            $patient->doctor_id = $unsignedDoctorId;
-            $patient->save();
-            //////ERROR DOES NOT ADD IN THE DATABASE
-        }
+            $patientId = $patient->patient_id;
 
-        return redirect()->back()->with('success', 'Doctor added for the patient successfully!');
+            // Récupérer le modèle "Doctor"
+            $realDoctor = Doctor::where('doctor_id', $doctorId)->first();
+
+            if ($realDoctor) {
+                // Attacher le patient et le docteur
+                $realDoctor->patients()->attach($patientId, ['doctor_id' => $doctorId]);
+                $patient->save();
+            }
+        }
     }
+
+    return redirect()->back()->with('success', 'Doctor added for the patient successfully!');
+}
 }

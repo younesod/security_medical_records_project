@@ -2,7 +2,10 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\PatientDoctorController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\PatientController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,13 +28,13 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
-Route::get('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'showUserForm'])->name('showUsers')->middleware('auth', 'role:admin');
+Route::get('/admin/assignRole', [UserController::class, 'showUserForm'])->name('showUsers')->middleware('auth', 'role:admin');
 
-Route::post('/admin/assignRole', [\App\Http\Controllers\UserController::class, 'updateUserRole'])->name('admin_change_role')->middleware('auth', 'role:admin');
-Route::delete('/admin/deleteRole',[\App\Http\Controllers\UserController::class,'deleteUser'])->name('admin_delete_user')->middleware('auth', 'role:admin');
+Route::post('/admin/assignRole', [UserController::class, 'updateUserRole'])->name('admin_change_role')->middleware('auth', 'role:admin');
+Route::delete('/admin/deleteRole',[UserController::class,'deleteUser'])->name('admin_delete_user')->middleware('auth', 'role:admin');
 
 
-Route::get('/patient',[\App\Http\Controllers\PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
-Route::post('/patient/addDoctor',[\App\Http\Controllers\PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
+Route::get('/patient',[PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
+Route::post('/patient/addDoctor',[PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
