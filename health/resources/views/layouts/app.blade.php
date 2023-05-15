@@ -76,6 +76,11 @@
 
                                 <div>
                                     <!-- class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">!-->
+                                    @if (Auth::check() && Auth::user()->role === 'patient')
+                                        <a class="dropdown-item" href="{{ route('medicalRecord') }}">Medical Record 
+                                            {{ Auth::user()->name }}</a>
+                                    @endif
+
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -92,15 +97,16 @@
                 </div>
             </div>
         </nav>
-
-        <main class="py-4">
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
-            @yield('content')
-        </main>
+        <div class="container">
+            <main class="py-4">
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                @yield('content')
+            </main>
+        </div>
     </div>
 </body>
 

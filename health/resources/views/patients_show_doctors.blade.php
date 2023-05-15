@@ -6,7 +6,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
-                        <div class="card-header">{{ __('Liste des docteurs') }}</div>
+                        <div class="card-header">{{ __('Doctors available') }}</div>
 
                         <div class="card-body">
                             <ul class="list-group">
@@ -54,7 +54,7 @@
     @else
         <div class="container mt-4 col-md-12">
             <div class="alert alert-danger">
-                <p>Aucun médecin disponible</p>
+                <p>There is no doctor available</p>
             </div>
         </div>
     @endif

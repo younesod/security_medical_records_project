@@ -10,9 +10,10 @@ class Doctor extends Model
 {
 
     use HasFactory;
-    
+
+
     protected $primaryKey = 'doctor_id';
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -29,7 +30,9 @@ class Doctor extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function patients(){
-    return $this->belongsToMany(Patient::class, 'doctor_patient', 'doctor_id', 'patient_id');
+
+    public function patients()
+    {
+        return $this->belongsToMany(Patient::class, 'doctor_patient', 'doctor_id', 'patient_id');
     }
 }

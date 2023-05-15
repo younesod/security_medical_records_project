@@ -38,3 +38,4 @@ Route::delete('/admin/deleteRole',[UserController::class,'deleteUser'])->name('a
 
 Route::get('/patient',[PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
 Route::post('/patient/addDoctor',[PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
+Route::get('/patient/doctors', [PatientDoctorController::class, 'doctorsPatient'])->name('medicalRecord')->middleware('auth', 'role:patient');

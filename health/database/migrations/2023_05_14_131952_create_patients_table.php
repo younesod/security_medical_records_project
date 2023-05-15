@@ -14,10 +14,8 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->id('patient_id');
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->where('role', 'patient');
+            $table->foreign('user_id')->references('id')->on('users')->where('role', 'patient')->onDelete('cascade');
             $table->timestamps();
-            $table->unsignedBigInteger('doctor_id')->nullable();
-            $table->foreign('doctor_id')->references('doctor_id')->on('doctors')->onDelete('set null');
         });
     }
 

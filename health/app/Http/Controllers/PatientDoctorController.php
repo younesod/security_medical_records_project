@@ -22,44 +22,54 @@ class PatientDoctorController extends Controller
         return view('patients_show_doctors', ['doctors' => $doctors]);
     }
 
+    public function doctorsPatient()
+    {
+        // Récupérer le patient courant
+        $patient = Auth::user()->patient;
+
+        // Récupérer les docteurs associés au patient
+        $doctors = $patient->doctors;
+
+        return view('patient_doctors', ['doctorsPatient' => $doctors]);
+    }
     /**
      * Assign a doctor to the current patient.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-  
+
     public function addDoctor(Request $request)
-{
-    // Récupérer l'ID du docteur sélectionné
-    $doctorId = $request->post('doctor_id');
+    {
+        // Récupérer l'ID du docteur sélectionné
+        $doctorId = $request->post('doctor_id');
 
-    if ($doctorId != null) {
-        // Récupérer le patient courant
-        if (Auth::check()) {
-            $patient = Auth::user()->patient;
-            $patientId = $patient->patient_id;
+        if ($doctorId != null) {
+            // Récupérer le patient courant
+            if (Auth::check()) {
+                $patient = Auth::user()->patient;
+                $patientId = $patient->patient_id;
 
-            $existingLink = DB::table('doctor_patient')
-                 ->where('doctor_id', $doctorId)
-                 ->where('patient_id', $patientId)
-                 ->first();
+                $existingLink = DB::table('doctor_patient')
+                    ->where('doctor_id', $doctorId)
+                    ->where('patient_id', $patientId)
+                    ->first();
 
-    if ($existingLink) {
-        return redirect()->back()->with('error', 'Ce docteur est déjà associé à ce patient.');
-    }
+                if ($existingLink) {
+                    return redirect()->back()->with('error', 'This doctor is already associate with you.');
+                }
 
-            // Récupérer le modèle "Doctor"
-            $realDoctor = Doctor::where('doctor_id', $doctorId)->first();
+                // Récupérer le modèle "Doctor"
+                $realDoctor = Doctor::find($doctorId);
 
-            if ($realDoctor) {
-                // Attacher le patient et le docteur
-                $realDoctor->patients()->attach($patientId, ['doctor_id' => $doctorId]);
-                $patient->save();
+                if ($realDoctor) {
+                    // Attacher le patient et le docteur
+                    $realDoctor->patients()->attach($patientId, ['doctor_id' => $doctorId]);
+                    $patient->save();
+                }
             }
         }
-    }
 
-    return redirect()->back()->with('success', 'Doctor added for the patient successfully!');
-}
+        return redirect()->back()->with('success', 'Doctor added to patient successfully!');
+    }
 }
