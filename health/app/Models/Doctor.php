@@ -8,7 +8,10 @@ use App\Models\Patient;
 
 class Doctor extends Model
 {
+
     use HasFactory;
+    
+    protected $primaryKey = 'doctor_id';
     
     /**
      * The attributes that are mass assignable.
