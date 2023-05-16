@@ -83,6 +83,9 @@
                                         <a class="dropdown-item" href="{{ route('medicalRecord') }}">Medical Record
                                             {{ Auth::user()->name }}</a>
                                     @endif
+                                    @if (Auth::check() && Auth::user()->role === 'patient')
+                                        <a class="dropdown-item" href="{{ route('consent_request') }}">Notifications</a>
+                                    @endif
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
@@ -105,6 +108,11 @@
                 @if (session('error'))
                     <div class="alert alert-danger">
                         {{ session('error') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
                     </div>
                 @endif
                 @yield('content')

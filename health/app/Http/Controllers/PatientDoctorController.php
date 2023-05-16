@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConsentRequest;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
 use DebugBar\DebugBar;
@@ -20,7 +21,7 @@ class PatientDoctorController extends Controller
     public function allDoctors()
     {
         $doctors = Doctor::all();
-        return view('patients_show_doctors', ['doctors' => $doctors]);
+        return view('patient.patients_show_doctors', ['doctors' => $doctors]);
     }
 
     public function doctorsPatient()
@@ -31,7 +32,7 @@ class PatientDoctorController extends Controller
         // Récupérer les docteurs associés au patient
         $doctors = $patient->doctors;
 
-        return view('patient_doctors', ['doctorsPatient' => $doctors]);
+        return view('patient.patient_doctors', ['doctorsPatient' => $doctors]);
     }
     /**
      * Assign a doctor to the current patient.
@@ -81,11 +82,17 @@ class PatientDoctorController extends Controller
         $doctorPatient = DoctorPatient::where('doctor_id', $doctorId)
             ->where('patient_id', $patientId)
             ->first();
-
+        $consentRequest = ConsentRequest::where('doctor_id', $doctorId)
+            ->where('patient_id', $patientId)
+            ->first();
         if ($doctorPatient) {
             DoctorPatient::where('doctor_id', $doctorId)
                 ->where('patient_id', $patientId)
                 ->delete();
+            if ($consentRequest) {
+                $consentRequest->delete();
+
+            }
             return redirect()->back()->with('success', 'Doctor removed from patient successfully!');
         } else {
             return redirect()->back()->with('error', 'Doctor-patient relation not found.');

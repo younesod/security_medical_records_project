@@ -20,8 +20,8 @@
             </ul>
         @else
             <div class="container mt-4 col-md-12">
-                <div class="alert alert-danger">
-                    <p>You do not have any doctors</p>
+                <div class="alert alert-info">
+                    <p>You do not have any doctors.</p>
                 </div>
                 <div class="alert alert-success">
                     <p>Suggest :

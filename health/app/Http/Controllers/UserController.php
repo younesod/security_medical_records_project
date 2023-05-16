@@ -17,7 +17,7 @@ class UserController extends Controller
     public function showUserForm()
     {
         $users = User::all()->except(Auth::id());
-        return view('admin_user_form', ['users' => $users]);
+        return view('admin.admin_user_form', ['users' => $users]);
     }
     /**
      * Check if the logged in user is an admin.

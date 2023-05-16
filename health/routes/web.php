@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConsentRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientDoctorController;
@@ -40,4 +41,9 @@ Route::get('/patient',[PatientDoctorController::class,'allDoctors'])->name('show
 Route::post('/patient/addDoctor',[PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
 Route::get('/patient/doctors', [PatientDoctorController::class, 'doctorsPatient'])->name('medicalRecord')->middleware('auth', 'role:patient');
 Route::get('/doctor/patients',[DoctorController::class, 'patients'])->name('medicalRecordDoctor')->middleware('auth', 'role:doctor');
+Route::delete('/removePatient',[DoctorController::class,'removePatient'])->name('remove_patient')->middleware('auth','role:doctor');
 Route::delete('patient/removeDoctor',[PatientDoctorController::class,'removeDoctor'])->name('patient_remove_doctor')->middleware('auth', 'role:patient');
+
+Route::get('/notification',[ConsentRequestController::class,'showRequestsDoctor'])->name('consent_request')->middleware('auth', 'role:patient');
+Route::post('/consent/request/response',[ConsentRequestController::class,'processConsentRequest'])->name('process_consent_request')->middleware('auth', 'role:patient');
+Route::post('/consent/request/add',[ConsentRequestController::class,'addPatient'])->name('request_add_patient')->middleware('auth', 'role:doctor');
