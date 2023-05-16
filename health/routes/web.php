@@ -39,3 +39,5 @@ Route::delete('/admin/deleteRole',[UserController::class,'deleteUser'])->name('a
 Route::get('/patient',[PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
 Route::post('/patient/addDoctor',[PatientDoctorController::class,'addDoctor'])->name('patient_add_doctor')->middleware('auth', 'role:patient');;
 Route::get('/patient/doctors', [PatientDoctorController::class, 'doctorsPatient'])->name('medicalRecord')->middleware('auth', 'role:patient');
+Route::get('/doctor/patients',[DoctorController::class, 'patients'])->name('medicalRecordDoctor')->middleware('auth', 'role:doctor');
+Route::delete('patient/removeDoctor',[PatientDoctorController::class,'removeDoctor'])->name('patient_remove_doctor')->middleware('auth', 'role:patient');

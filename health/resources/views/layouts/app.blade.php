@@ -49,6 +49,9 @@
                                 <a class="nav-link" href="{{ route('showDoctors') }}">{{ __('Doctors') }}</a>
                             </li>
                         @endif
+                        @if (Auth::check() && Auth::user()->isDoctor())
+                            <a class="dropdown-item" href="{{ route('medicalRecordDoctor') }}">Patients</a>
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -77,7 +80,7 @@
                                 <div>
                                     <!-- class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">!-->
                                     @if (Auth::check() && Auth::user()->role === 'patient')
-                                        <a class="dropdown-item" href="{{ route('medicalRecord') }}">Medical Record 
+                                        <a class="dropdown-item" href="{{ route('medicalRecord') }}">Medical Record
                                             {{ Auth::user()->name }}</a>
                                     @endif
 

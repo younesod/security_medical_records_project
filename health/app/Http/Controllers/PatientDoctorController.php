@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use App\Models\DoctorPatient;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,5 +72,23 @@ class PatientDoctorController extends Controller
         }
 
         return redirect()->back()->with('success', 'Doctor added to patient successfully!');
+    }
+    public function removeDoctor(Request $request)
+    {
+        $doctorId = $request->post('doctor_id');
+        $patientId = Auth::user()->patient->patient_id;
+
+        $doctorPatient = DoctorPatient::where('doctor_id', $doctorId)
+            ->where('patient_id', $patientId)
+            ->first();
+
+        if ($doctorPatient) {
+            DoctorPatient::where('doctor_id', $doctorId)
+                ->where('patient_id', $patientId)
+                ->delete();
+            return redirect()->back()->with('success', 'Doctor removed from patient successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Doctor-patient relation not found.');
+        }
     }
 }

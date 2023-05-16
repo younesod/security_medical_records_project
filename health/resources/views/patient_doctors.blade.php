@@ -6,7 +6,16 @@
         @if (count($doctorsPatient) > 0)
             <ul class="list-group">
                 @foreach ($doctorsPatient as $doctor)
-                    <li class="list-group-item">Dr. {{ $doctor->user->name }}</li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Dr. {{ $doctor->user->name }}
+                        <form action="{{ route('patient_remove_doctor') }}" method="post">
+                            @csrf
+                            @method('delete')
+                            <input type="hidden" name="doctor_id" value="{{ $doctor->doctor_id }}">
+                            <input type="hidden" name="patient_id" value="{{ $doctor->patient_id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
                 @endforeach
             </ul>
         @else
@@ -22,6 +31,18 @@
                     </p>
                 </div>
             </div>
+        @endif
+        <div class="container mt-4 col-md-12">
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+        </div>
     </div>
-    @endif
 @endsection
