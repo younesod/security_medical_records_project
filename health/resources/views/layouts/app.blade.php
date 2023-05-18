@@ -45,9 +45,13 @@
                             </li>
                         @endif
                         @if (Auth::check() && Auth::user()->isPatient())
-                            <li class="nav-item">
-                                 <a class="nav-link" href="{{ route('showRecord') }}">{{ __('Dossier') }}</a>
-                            </li>
+                            <li class="nav-item ">
+                            <div class="container-fluid d-flex flex-row">
+                                <!-- Contenu de votre navigation -->
+                             <a class="nav-link" href="{{ route('showDoctors') }}">{{ __('Doctor') }}</a>
+                            <a class="nav-link" href="{{ route('showRecord') }}">{{ __('Dossier') }}</a>
+                            </div>
+                                </li>
                               
                         @endif
                         @if (Auth::check() && Auth::user()->isDoctor())
