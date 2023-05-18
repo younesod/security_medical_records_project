@@ -15,6 +15,8 @@ return new class extends Migration
             $table->increments('id');
             $table->string('name');
             $table->unsignedBigInteger('user_id');
+            $table->binary('file');
+            $table->string('file_path');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');          
               

@@ -7,12 +7,8 @@
                 <div class="col-md-10">
                     <div class="card">
                   
-                    @if (session('success'))
-                                <div class="alert alert-success">
-                                    {{ session('success') }}
-                                </div>
-                            @endif
-                        <div class="card-header">{{ __('Dossier') }}</div>
+                   
+                     <div class="card-header">{{ __('Dossier') }}</div>
                         @foreach ($files as $file)
                         @if($files->isEmpty())
                         Aucun fichier n'est disponible pour le moment
@@ -40,15 +36,16 @@
                                                             <input type="hidden" name="fileId" value="{{ $file->id }}">
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
                                                         </form>
+                                                        <a href="{{ route('doctor_download', ['id' => $file->id]) }}" class="btn btn-primary " >Télécharger</a>
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
-                        <form action="{{route('doctor_add_file', ['id' => request()->route('id')])}}" method ="post" >
+                        <form action="{{route('doctor_add_file', ['id' => request()->route('id')])}}" method ="post" enctype="multipart/form-data" >
                         @csrf
                         @method('POST')
-                       <input type="file" name="fileName"> 
+                       <input type="file" name="file"> 
                        <input type="hidden" name="id" value="{{  request()->route('id') }}">
                        <input type="submit" value="Upload" class="btn btn-primary">
                         </form>

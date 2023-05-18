@@ -9,6 +9,8 @@ use App\Models\medicalRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\Patient; 
 use App\Models\Doctor;
+use App\Models\DoctorPatient;
+use Illuminate\Support\Facades\Storage; 
 class DoctorRecord extends Controller
 {
     public function getPatientsWithMedicalRecords($doctorId)
@@ -43,34 +45,50 @@ class DoctorRecord extends Controller
         
     public function addRecordOfPatient(Request $request)
     {
-        if($request->filled('fileName')){
-            $name = $request->fileName;
-            $patientId = $request->id;
 
+        $request->filled('file');
+            
+            $name = $request->file->getClientOriginalName();
+            $patientId = $request->id;
             $existingRecord = medicalRecord::where('user_id', $patientId )->where('name',$name)->first();
+
     
             if ($existingRecord) {
                 // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
-                $existingRecord->name = $request->fileName;
+                $existingRecord->name = $name;
+                $existingRecord->file = $request->file;
                 $existingRecord->save();
                 return redirect()->back()->with('success', 'Le fichier a bien été modifié.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
                 $record = new medicalRecord();
-                $record->name = $request->fileName;
+                $record->name = $name;
                 $record->user_id = $patientId;
+                $record->file = $request->file;
+                $record->file_path = $request->file->storeas('public/medical_records', $record->name);
                 $record->save();
                 return redirect()->back()->with('success', 'Le fichier a bien été ajouté.');
             }
-        }else{
+        
          return redirect()->back()->with('error', 'Veuillez renseigner un nom de fichier.');
-        }
+        
     }
     public function deleteRecordOfPatient(Request $request){
         $fileId = $request->fileId;
          DB::table('medical_records')->where('id', '=', $fileId)->delete();
          return redirect()->back()->with('success', 'Le fichier a bien été supprimé.');
 
+    }
+    public function download($id){
+        $medicalRecord = MedicalRecord::findOrFail($id);
+    
+        $filePath = $medicalRecord->file_path;
+    
+        if ($filePath && Storage::exists($filePath)) {
+            return Storage::download($filePath);
+        }
+    
+        return redirect()->back()->with('error', 'Fichier non trouvé');
     }
     }
 
