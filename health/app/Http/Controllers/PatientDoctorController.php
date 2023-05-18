@@ -98,4 +98,61 @@ class PatientDoctorController extends Controller
             return redirect()->back()->with('error', 'Doctor-patient relation not found.');
         }
     }
+    public function showPatient(){
+        $idDoctor = Auth::user()->doctor->doctor_id;
+        $patients = DB::table('doctor_patient')
+            ->join('patients', 'doctor_patient.patient_id', '=', 'patients.patient_id')
+            ->join('users', 'patients.user_id', '=', 'users.id')
+            ->where('doctor_patient.doctor_id', '=', $idDoctor)
+            ->select('users.name', 'patients.patient_id')
+            ->get();    
+        $AllPatients = Patient::all();    
+    
+        return view('show_patient', ['patients' => $patients, 'AllPatients' => $AllPatients]);
+    
+    }
+    public function addPatient(Request $request){
+    
+        // Récupérer l'ID du patient sélectionné
+        $patientId = $request->post('patient_id');
+    
+    
+        if ($patientId != null) {
+            if (Auth::check()) {
+                $doctor = Auth::user()->doctor;
+                $doctorId = $doctor->doctor_id;
+    
+                $existingLink = DB::table('doctor_patient')
+                     ->where('doctor_id', $doctorId)
+                     ->where('patient_id', $patientId)
+                     ->first();
+            
+    
+        if ($existingLink) {
+            return redirect()->back()->with('error', 'vous avez deja ajouter ce patient.');
+        }
+                
+                $realPatient = Patient::where('patient_id', $patientId)->first();
+                if ($realPatient) {
+                    $doctor->patients()->attach($patientId);
+                    $realPatient->save();
+                }
+            }
+        }
+        return redirect()->back()->with('success', ' added the patient successfully!');
+    }
+    
+    public function deletePatient(Request $request){
+        $id = $request->post('patient_id');
+        $doctorId = Auth::user()->doctor->doctor_id;
+        
+    
+        DB::table('doctor_patient')
+            ->where('doctor_id', $doctorId)
+            ->where('patient_id', $id)
+            ->delete();
+    
+        return redirect()->back()->with('success', 'Patient removed successfully from your list.');
+    
+    }
 }

@@ -35,4 +35,9 @@ class Doctor extends Model
     {
         return $this->belongsToMany(Patient::class, 'doctor_patient', 'doctor_id', 'patient_id');
     }
+    public function patientsWithMedicalRecord()
+    {
+    return $this->hasManyThrough(Patient::class, MedicalRecord::class, 'doctor_id', 'patient_id');
+    }
+    
 }
