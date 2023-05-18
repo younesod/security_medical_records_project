@@ -55,11 +55,13 @@
                               
                         @endif
                         @if (Auth::check() && Auth::user()->isDoctor())
-                            <a class="dropdown-item" href="{{ route('medicalRecordDoctor') }}">Patients</a>
                             <li class="nav-item">
-                              
+                            <div class="container-fluid d-flex flex-row">
+                            <a class="nav-link" href="{{ route('medicalRecordDoctor') }}">{{__('Patients')}}</a>
+                            <a class="nav-link" href="{{ route('showRecordDoctor') }}">{{ __('Dossier ') }}</a>
+                            </div>
                             </li>
-                               <a class="nav-link" href="{{ route('showRecordDoctor') }}">{{ __('Dossier ') }}</a>
+                               
                         @endif
                     </ul>
 
