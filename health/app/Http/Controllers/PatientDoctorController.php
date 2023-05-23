@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ConsentRequest;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
+use App\Models\MedicalRecord;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Patient;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PatientDoctorController extends Controller
 {
@@ -68,6 +70,15 @@ class PatientDoctorController extends Controller
                     // Attacher le patient et le docteur
                     $realDoctor->patients()->attach($patientId, ['doctor_id' => $doctorId]);
                     $patient->save();
+
+                    //recuperer la clé de chiffrement symmétrique -> decrypter -> crypter avec la clé public du médecin associé
+                    //faire pour tout les fichiers
+                    $file=MedicalRecord::where('user_id',Auth::user()->id)->first();
+                    $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
+                    $decryptedKey='';
+                    openssl_private_decrypt($encryptedKey, $decryptedKey, Auth::user()->private_key);
+                    openssl_public_encrypt($decryptedKey, $encryptedKeyDoctor, $realDoctor->user->public_key);
+                    Storage::put('public/medical_records/' . $file->name.$realDoctor->user->email . '.key', $encryptedKeyDoctor);
                 }
             }
         }

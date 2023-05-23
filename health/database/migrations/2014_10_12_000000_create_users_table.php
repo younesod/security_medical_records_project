@@ -18,6 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'doctor', 'patient']);
+            $table->longText('private_key')->nullable();
+            $table->longText('public_key')->nullable();
+            $table->longText('sign_public_key')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

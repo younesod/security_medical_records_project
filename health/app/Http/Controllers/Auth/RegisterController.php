@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use phpseclib3\Crypt\RSA;
 
 class RegisterController extends Controller
 {
@@ -67,17 +68,16 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $user =User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password'],['rounds'=>12]),
+            'password' => Hash::make($data['password'], ['rounds' => 12]),
             'role' => $data['role'],
         ]);
+        $user->gen();
         Patient::create([
-            'user_id'=>$user->id,
-            'doctor_id'=>null,
+            'user_id' => $user->id,
         ]);
         return $user;
-        
     }
 }

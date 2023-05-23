@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\medicalRecord;
+use App\Models\MedicalRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\Patient; 
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
 use Illuminate\Support\Facades\Storage; 
-class DoctorRecord extends Controller
+class DoctorRecordController extends Controller
 {
     public function getPatientsWithMedicalRecords($doctorId)
     {
@@ -50,7 +51,7 @@ class DoctorRecord extends Controller
             
             $name = $request->file->getClientOriginalName();
             $patientId = $request->id;
-            $existingRecord = medicalRecord::where('user_id', $patientId )->where('name',$name)->first();
+            $existingRecord = MedicalRecord::where('user_id', $patientId )->where('name',$name)->first();
 
     
             if ($existingRecord) {
@@ -61,7 +62,7 @@ class DoctorRecord extends Controller
                 return redirect()->back()->with('success', 'Le fichier a bien été modifié.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
-                $record = new medicalRecord();
+                $record = new MedicalRecord();
                 $record->name = $name;
                 $record->user_id = $patientId;
                 $record->file = $request->file;
@@ -79,15 +80,41 @@ class DoctorRecord extends Controller
          return redirect()->back()->with('success', 'Le fichier a bien été supprimé.');
 
     }
-    public function download($id){
+    // public function download($id){
+    //     $medicalRecord = MedicalRecord::findOrFail($id);
+    
+    //     $filePath = $medicalRecord->file_path;
+    
+    //     if ($filePath && Storage::exists($filePath)) {
+    //         return Storage::download($filePath);
+    //     }
+    
+    //     return redirect()->back()->with('error', 'Fichier non trouvé');
+    // }
+
+    public function download($id)
+    {
         $medicalRecord = MedicalRecord::findOrFail($id);
-    
+
         $filePath = $medicalRecord->file_path;
-    
+        $name = $medicalRecord->name;
+        $user=Auth::user();
         if ($filePath && Storage::exists($filePath)) {
-            return Storage::download($filePath);
+            $encryptedContent = Storage::get('public/medical_records/' . $name . '.bin');
+            $iv = Storage::get('public/medical_records/' . $name . '.iv');
+            $encryptedKey = Storage::get('public/medical_records/' . $name .$user->email. '.key');
+            openssl_private_decrypt($encryptedKey, $decryptedKey, $user->private_key);
+            $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
+
+
+            // Créer un fichier temporaire avec le contenu décrypté
+            $tempFilePath = sys_get_temp_dir() . '/' . $name;
+            file_put_contents($tempFilePath, $decryptedContent);
+
+            // Télécharger le fichier dans son format d'origine
+            return response()->download($tempFilePath)->deleteFileAfterSend(true);
         }
-    
+
         return redirect()->back()->with('error', 'Fichier non trouvé');
     }
     }

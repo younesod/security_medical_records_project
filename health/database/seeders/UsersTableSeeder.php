@@ -9,6 +9,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use phpseclib3\Crypt\RSA;
 
 class UsersTableSeeder extends Seeder
 {
@@ -17,12 +18,20 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        // $privateKey = RSA::createKey(2048);
+        // $publicKey = $privateKey->getPublicKey();
+        // // Supprimer les en-têtes et les pieds de page de la clé publique
+        // $publicKey = preg_replace('/\R/', '', $publicKey);
+        // $publicKey = str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----'], '', $publicKey);
+
+
+        $user = User::create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('admin', ['rounds' => 12]),
             'role' => 'admin',
         ]);
+        $user->gen();
 
         $doc = User::create([
             'name' => 'Maboul',
@@ -30,6 +39,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('maboul', ['rounds' => 12]),
             'role' => 'doctor',
         ]);
+        $doc->gen();
 
         $user = User::create([
             'name' => 'Who',
@@ -37,6 +47,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('who', ['rounds' => 12]),
             'role' => 'doctor',
         ]);
+        $user->gen();
 
         $user_patient = User::create([
             'name' => 'Test',
@@ -44,6 +55,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('test', ['rounds' => 12]),
             'role' => 'patient',
         ]);
+        $user_patient->gen();
         $doctor = Doctor::create([
             'user_id' => $user->id,
         ]);
@@ -56,7 +68,5 @@ class UsersTableSeeder extends Seeder
             'user_id' => $user_patient->id,
         ]);
 
-
-        // DB::insert("INSERT INTO doctor_patient (doctor_id, patient_id) VALUES (?, ?)", [$doctor->doctor_id, $patient->patient_id]);
     }
 }
