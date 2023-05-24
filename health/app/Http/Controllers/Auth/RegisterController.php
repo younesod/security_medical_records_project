@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use phpseclib3\Crypt\RSA;
 
 class RegisterController extends Controller
 {
@@ -74,7 +73,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password'], ['rounds' => 12]),
             'role' => $data['role'],
         ]);
-        $user->gen();
+        $user->generateAndStoreKeyPair();
         Patient::create([
             'user_id' => $user->id,
         ]);

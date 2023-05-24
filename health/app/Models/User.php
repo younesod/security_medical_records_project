@@ -9,8 +9,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
-use ParagonIE\Halite\KeyFactory;
-use phpseclib3\Crypt\RSA;
 
 class User extends Authenticatable
 {
@@ -99,22 +97,22 @@ class User extends Authenticatable
      *
      * @return string The public key.
      */
-    public function generateAndStoreKeyPair()
-    {
+    // public function generateAndStoreKeyPair()
+    // {
 
-        $privateKey = RSA::createKey(2048);
-        $this->private_key = $privateKey;
-        $publicKey = $privateKey->getPublicKey();
+    //     $privateKey = RSA::createKey(2048);
+    //     $this->private_key = $privateKey;
+    //     $publicKey = $privateKey->getPublicKey();
 
-        // Store the private key securely (example: store in the database)
-        $this->public_key = $publicKey;
-        $message = $this->email;
-        $this->sign_public_key = $privateKey->sign($message);
-        $this->save();
+    //     // Store the private key securely (example: store in the database)
+    //     $this->public_key = $publicKey;
+    //     $message = $this->email;
+    //     $this->sign_public_key = $privateKey->sign($message);
+    //     $this->save();
 
-        // Return the public key for further use
-        return $publicKey;
-    }
+    //     // Return the public key for further use
+    //     return $publicKey;
+    // }
 
     // public function generateEncryptionKeyPAirAndSignature(){
     //     $enc_keyPair= KeyFactory::generateEncryptionKeyPair();
@@ -137,19 +135,19 @@ class User extends Authenticatable
     //     $this->save();
     // }
 
-    public function gen()
+    public function generateAndStoreKeyPair()
     {
-        //create the keypair
-        $config = array(
-            'private_key_bits' => 2048, // Taille de la clé privée en bits
-            'private_key_type' => OPENSSL_KEYTYPE_RSA, // Algorithme de chiffrement
-        );
+        // //create the keypair
+        // $config = array(
+        //     'private_key_bits' => 2048, // Taille de la clé privée en bits
+        //     'private_key_type' => OPENSSL_KEYTYPE_RSA, // Algorithme de chiffrement
+        // );
 
-        $res = openssl_pkey_new($config);
-        // get the privatekey
-        openssl_pkey_export($res, $privatekey);
-        $publickey = openssl_pkey_get_details($res);
-        $publickey = $publickey['key'];
+        // $res = openssl_pkey_new($config);
+        // // get the privatekey
+        // openssl_pkey_export($res, $privatekey);
+        // $publickey = openssl_pkey_get_details($res);
+        // $publickey = $publickey['key'];
         $path = self::$paths_to_private_key. $this->email . '.pem';
         // openssl ecparam -name prime256v1 -genkey -noout -out be_ea_key.pem  
         // openssl ec -in be_ea_key.pem -pubout -out public_key.pem 

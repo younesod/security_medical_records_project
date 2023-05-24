@@ -9,7 +9,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use phpseclib3\Crypt\RSA;
 
 class UsersTableSeeder extends Seeder
 {
@@ -24,7 +23,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('admin', ['rounds' => 12]),
             'role' => 'admin',
         ]);
-        $user->gen();
+        $user->generateAndStoreKeyPair();
 
         $doc = User::create([
             'name' => 'Maboul',
@@ -32,7 +31,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('maboul', ['rounds' => 12]),
             'role' => 'doctor',
         ]);
-        $doc->gen();
+        $doc->generateAndStoreKeyPair();
 
         $user = User::create([
             'name' => 'Who',
@@ -40,7 +39,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('who', ['rounds' => 12]),
             'role' => 'doctor',
         ]);
-        $user->gen();
+        $user->generateAndStoreKeyPair();
 
         $user_patient = User::create([
             'name' => 'Test',
@@ -48,7 +47,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('test', ['rounds' => 12]),
             'role' => 'patient',
         ]);
-        $user_patient->gen();
+        $user_patient->generateAndStoreKeyPair();
         $doctor = Doctor::create([
             'user_id' => $user->id,
         ]);

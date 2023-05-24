@@ -34,6 +34,7 @@ class DoctorController extends Controller
         return redirect()->back()->with('error', 'You do not have permission to access this page');
     }
 
+    
     public function removePatient(Request $request)
     {
         $patientId = $request->post('patient_id');
