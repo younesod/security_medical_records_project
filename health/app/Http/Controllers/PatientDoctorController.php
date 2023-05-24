@@ -22,8 +22,12 @@ class PatientDoctorController extends Controller
      */
     public function allDoctors()
     {
+        // Récupérer le patient courant
+        $patient = Auth::user()->patient;
+        // Récupérer les docteurs associés au patient
+        $doctorsPatient = $patient->doctors;
         $doctors = Doctor::all();
-        return view('patient.patients_show_doctors', ['doctors' => $doctors]);
+        return view('patient.patients_show_doctors', ['doctors' => $doctors,'doctorsPatient'=>$doctorsPatient]);
     }
 
     public function doctorsPatient()
@@ -72,14 +76,15 @@ class PatientDoctorController extends Controller
                     $patient->save();
 
                     //recuperer la clé de chiffrement symmétrique -> decrypter -> crypter avec la clé public du médecin associé
-                    //faire pour tout les fichiers
-                    $file=MedicalRecord::where('user_id',Auth::user()->id)->first();
-                    $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
-                    $decryptedKey='';
-                    $filePrivateKey= file_get_contents(Auth::user()->private_key);
-                    openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
-                    openssl_public_encrypt($decryptedKey, $encryptedKeyDoctor, $realDoctor->user->public_key);
-                    Storage::put('public/medical_records/' . $file->name.$realDoctor->user->email . '.key', $encryptedKeyDoctor);
+                    $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
+                    foreach($files as $file){
+                        $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
+                        $decryptedKey = '';
+                        $filePrivateKey = file_get_contents(Auth::user()->private_key);
+                        openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
+                        openssl_public_encrypt($decryptedKey, $encryptedKeyDoctor, $realDoctor->user->public_key);
+                        Storage::put('public/medical_records/' . $file->name . $realDoctor->user->email . '.key', $encryptedKeyDoctor);
+                    }
                 }
             }
         }
@@ -103,47 +108,52 @@ class PatientDoctorController extends Controller
                 ->delete();
             if ($consentRequest) {
                 $consentRequest->delete();
-
+            }
+            $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
+            $doctor = Doctor::find($doctorId);
+            foreach ($files as $file) {
+                Storage::delete('public/medical_records/' . $file->name . $doctor->user->email . '.key');
             }
             return redirect()->back()->with('success', 'Doctor removed from patient successfully!');
         } else {
             return redirect()->back()->with('error', 'Doctor-patient relation not found.');
         }
     }
-    public function showPatient(){
+    public function showPatient()
+    {
         $idDoctor = Auth::user()->doctor->doctor_id;
         $patients = DB::table('doctor_patient')
             ->join('patients', 'doctor_patient.patient_id', '=', 'patients.patient_id')
             ->join('users', 'patients.user_id', '=', 'users.id')
             ->where('doctor_patient.doctor_id', '=', $idDoctor)
             ->select('users.name', 'patients.patient_id')
-            ->get();    
-        $AllPatients = Patient::all();    
-    
+            ->get();
+        $AllPatients = Patient::all();
+
         return view('show_patient', ['patients' => $patients, 'AllPatients' => $AllPatients]);
-    
     }
-    public function addPatient(Request $request){
-    
+    public function addPatient(Request $request)
+    {
+
         // Récupérer l'ID du patient sélectionné
         $patientId = $request->post('patient_id');
-    
-    
+
+
         if ($patientId != null) {
             if (Auth::check()) {
                 $doctor = Auth::user()->doctor;
                 $doctorId = $doctor->doctor_id;
-    
+
                 $existingLink = DB::table('doctor_patient')
-                     ->where('doctor_id', $doctorId)
-                     ->where('patient_id', $patientId)
-                     ->first();
-            
-    
-        if ($existingLink) {
-            return redirect()->back()->with('error', 'vous avez deja ajouter ce patient.');
-        }
-                
+                    ->where('doctor_id', $doctorId)
+                    ->where('patient_id', $patientId)
+                    ->first();
+
+
+                if ($existingLink) {
+                    return redirect()->back()->with('error', 'You already added this patient.');
+                }
+
                 $realPatient = Patient::where('patient_id', $patientId)->first();
                 if ($realPatient) {
                     $doctor->patients()->attach($patientId);
@@ -153,18 +163,18 @@ class PatientDoctorController extends Controller
         }
         return redirect()->back()->with('success', ' added the patient successfully!');
     }
-    
-    public function deletePatient(Request $request){
+
+    public function deletePatient(Request $request)
+    {
         $id = $request->post('patient_id');
         $doctorId = Auth::user()->doctor->doctor_id;
-        
-    
+
+
         DB::table('doctor_patient')
             ->where('doctor_id', $doctorId)
             ->where('patient_id', $id)
             ->delete();
-    
+
         return redirect()->back()->with('success', 'Patient removed successfully from your list.');
-    
     }
 }

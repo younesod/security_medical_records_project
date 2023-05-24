@@ -9,6 +9,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientRecordController;
 use App\Http\Controllers\DoctorRecordController;
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,10 +39,6 @@ Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 Route::get('/admin/assignRole', [UserController::class, 'showUserForm'])->name('showUsers')->middleware('auth', 'role:admin');
 Route::post('/admin/assignRole', [UserController::class, 'updateUserRole'])->name('admin_change_role')->middleware('auth', 'role:admin');
 Route::delete('/admin/deleteRole',[UserController::class,'deleteUser'])->name('admin_delete_user')->middleware('auth', 'role:admin');
-
-
-
-
 
 
 

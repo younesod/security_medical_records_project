@@ -6,7 +6,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-10">
                     <div class="card">
-                        <div class="card-header">{{ __('Mon dossier medical') }}</div>
+                        <div class="card-header">{{ __('Medical record') }}</div>
                         <table class="table table-bordered table-hover">
                                         <tbody>
                                         @foreach ($record as $records)
@@ -19,7 +19,7 @@
                                                             <input type="hidden" name="fileId" value="{{ $records->id }}">
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
                                                         </form>
-                                                        <a href="{{ route('patient_download', ['id' => $records->id]) }}" class="btn btn-primary " >Télécharger</a>
+                                                        <a href="{{ route('patient_download', ['id' => $records->id]) }}" class="btn btn-primary " >Download</a>
                                                     </td>
                                                 </tr>
                                             @endforeach

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\DoctorPatient;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,23 +32,28 @@ class PatientRecordController extends Controller
             $name = $request->file->getClientOriginalName();
             $extension = $request->file->getClientOriginalExtension();
             if (!in_array($extension, PatientRecordController::$validExtensions)) {
-                return redirect()->back()->with('error', 'Extension de fichier non autorisée.');
+                return redirect()->back()->with('error', 'Extension\'s file unauthorized.');
             }
 
             $patient = Auth::user()->patient;
             $patientId = $patient->user_id;
 
             $existingRecord = MedicalRecord::where('user_id', $patientId)->where('name', $name)->first();
-            // $existingDoctorPatientRelation= DoctorPatient::where('user_id',$patientId);
-            // dd($existingDoctorPatientRelation);
             if ($existingRecord) {
                 // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
-                //là on doit recuperer toute les clés 
                 $existingRecord->file = $request->file;
                 $existingRecord->name = $existingRecord->file->getClientOriginalName();
                 $existingRecord->file_ext = $extension;
+                //Encrypt the received file with the ciphered symmetric key
+                $fileContent = file_get_contents($file->path());
+                $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
+                $iv = Storage::get('public/medical_records/' . $name . '.iv');
+                $pathPrivateKey = file_get_contents(Auth::user()->private_key);
+                openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
+                $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
+                Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 $existingRecord->save();
-                return redirect()->back()->with('success', 'Le fichier a bien été modifié.');
+                return redirect()->back()->with('success', 'The file has been modified.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
                 $record = new MedicalRecord();
@@ -67,8 +73,15 @@ class PatientRecordController extends Controller
                 // Chiffrer le contenu du fichier avec la clé de chiffrement symétrique et l'IV
                 $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $encryptionKey, OPENSSL_RAW_DATA, $iv);
 
+                $doctorPatient = DoctorPatient::where('patient_id', Auth::user()->patient->patient_id)->get();
+                if ($doctorPatient) {
+                    foreach ($doctorPatient as $doctor) {
+                        $doctorData = Doctor::find($doctor->doctor_id);
+                        openssl_public_encrypt($encryptionKey, $encryptedKey, $doctorData->user->public_key);
+                        Storage::put('public/medical_records/' . $name . $doctorData->user->email . '.key', $encryptedKey);
+                    }
+                }
                 // Chiffrer la clé de chiffrement symétrique avec la clé publique
-                //créer des chiffrments symétrique avec autant de ligne qu'il y a dans doctor patient associé au patient
                 openssl_public_encrypt($encryptionKey, $encryptedKey, Auth::user()->public_key);
                 // Stocker le fichier chiffré, l'IV et la clé chiffrée
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
@@ -84,11 +97,11 @@ class PatientRecordController extends Controller
                 // $record->file_path = $filePath;
                 $record->file_ext = $extension;
                 $record->save();
-                return redirect()->back()->with('success', 'Le fichier a bien été ajouté.');
+                return redirect()->back()->with('success', 'The file has been uploaded.');
             }
         } else {
 
-            return redirect()->back()->with('error', 'Veuillez renseigner un nom de fichier.');
+            return redirect()->back()->with('error', 'You need to add a file.');
         }
     }
 
@@ -96,14 +109,22 @@ class PatientRecordController extends Controller
     public function DeleteFile(Request $request)
     {
         $fileId = $request->fileId;
-        $file =MedicalRecord::find($fileId);
-        $name=$file->name;
+        $file = MedicalRecord::find($fileId);
+        $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
+        $name = $file->name;
         //Supprimer les fichiers bin, iv et key
+        $doctorPatient = DoctorPatient::where('patient_id', Auth::user()->patient->patient_id)->get();
+        if ($doctorPatient) {
+            foreach ($doctorPatient as $doctor) {
+                $doctorData = Doctor::find($doctor->doctor_id);
+                Storage::delete('public/medical_records/' . $name . $doctorData->user->email . '.key');
+            }
+        }
         Storage::delete('public/medical_records/' . $name . '.bin');
         Storage::delete('public/medical_records/' . $name . '.iv');
         Storage::delete('public/medical_records/' . $name . '.key');
         DB::table('medical_records')->where('id', '=', $fileId)->delete();
-        return redirect()->back()->with('success', 'Le fichier a bien été supprimé.');
+        return redirect()->back()->with('success', 'The file has been deleted.');
     }
     public function download($id)
     {
@@ -111,14 +132,14 @@ class PatientRecordController extends Controller
 
         $filePath = $medicalRecord->file_path;
         $name = $medicalRecord->name;
-        $another_user=User::find(3);
+        $another_user = User::find(3);
 
         if ($filePath && Storage::exists($filePath)) {
             $encryptedContent = Storage::get('public/medical_records/' . $name . '.bin');
             $iv = Storage::get('public/medical_records/' . $name . '.iv');
             $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
             // $encryptedKey2=Storage::get('public/medical_records/' . $name .'another'.'.key');
-            $pathPrivateKey=file_get_contents(Auth::user()->private_key);
+            $pathPrivateKey = file_get_contents(Auth::user()->private_key);
             openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
 
@@ -131,6 +152,6 @@ class PatientRecordController extends Controller
             return response()->download($tempFilePath)->deleteFileAfterSend(true);
         }
 
-        return redirect()->back()->with('error', 'Fichier non trouvé');
+        return redirect()->back()->with('error', 'File not found.');
     }
 }

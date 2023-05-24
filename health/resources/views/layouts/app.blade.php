@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css"> --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
 
 
 </head>
@@ -27,7 +30,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand" href="{{ route('home') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -46,22 +49,22 @@
                         @endif
                         @if (Auth::check() && Auth::user()->isPatient())
                             <li class="nav-item ">
-                            <div class="container-fluid d-flex flex-row">
-                                <!-- Contenu de votre navigation -->
-                             <a class="nav-link" href="{{ route('showDoctors') }}">{{ __('Doctor') }}</a>
-                            <a class="nav-link" href="{{ route('showRecord') }}">{{ __('Dossier') }}</a>
-                            </div>
-                                </li>
-                              
+                                <div class="container-fluid d-flex flex-row">
+                                    <!-- Contenu de votre navigation -->
+                                    <a class="nav-link" href="{{ route('showDoctors') }}">{{ __('Doctor') }}</a>
+                                    <a class="nav-link" href="{{ route('showRecord') }}">{{ __('Record') }}</a>
+                                </div>
+                            </li>
                         @endif
                         @if (Auth::check() && Auth::user()->isDoctor())
                             <li class="nav-item">
-                            <div class="container-fluid d-flex flex-row">
-                            <a class="nav-link" href="{{ route('medicalRecordDoctor') }}">{{__('Patients')}}</a>
-                            <a class="nav-link" href="{{ route('showRecordDoctor') }}">{{ __('Dossier ') }}</a>
-                            </div>
+                                <div class="container-fluid d-flex flex-row">
+                                    <a class="nav-link"
+                                        href="{{ route('medicalRecordDoctor') }}">{{ __('Patients') }}</a>
+                                    <a class="nav-link"
+                                        href="{{ route('showRecordDoctor') }}">{{ __('Dossier ') }}</a>
+                                </div>
                             </li>
-                               
                         @endif
                     </ul>
 
@@ -88,11 +91,9 @@
                                     {{ Auth::user()->name }}
                                 </a>
 
-                                <div>
-                                    <!-- class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">!-->
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     @if (Auth::check() && Auth::user()->role === 'patient')
-                                        <a class="dropdown-item" href="{{ route('medicalRecord') }}">Medical Record
-                                            {{ Auth::user()->name }}</a>
+                                        <a class="dropdown-item" href="{{ route('medicalRecord') }}">Information</a>
                                     @endif
                                     @if (Auth::check() && Auth::user()->role === 'patient')
                                         <a class="dropdown-item" href="{{ route('consent_request') }}">Notifications</a>

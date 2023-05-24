@@ -34,7 +34,7 @@ php artisan db:seed(pour ajouter des records (surtout l'admin) dans la database)
 php artisan serve (lancer le serveur)]
 # refresh la database et executer les seeds
 ou sinon php artisan migrate:fresh --seed 
-
+dans le .env -> ajouter dans la variable PATH_TO_PRIVATE_KEYS un chemin ou stocker les clé privés
 
 
 

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ConsentRequest;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
+use App\Models\MedicalRecord;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class DoctorController extends Controller
 {
@@ -36,7 +38,7 @@ class DoctorController extends Controller
     {
         $patientId = $request->post('patient_id');
         $doctorId = Auth::user()->doctor->doctor_id;
-
+        $patient= Patient::where('patient_id',$patientId)->first();
         $doctor = Doctor::find($doctorId);
 
         $consentRequest = ConsentRequest::where('doctor_id', $doctorId)
@@ -46,6 +48,11 @@ class DoctorController extends Controller
             $doctor->patients()->detach($patientId);
             if ($consentRequest) {
                 $consentRequest->delete();
+            }
+            //supprimer la clé des fichiers associé au patient
+            $files = MedicalRecord::where('user_id', $patient->user_id)->get();
+            foreach($files as $file){
+                Storage::delete('public/medical_records/' . $file->name . $doctor->user->email . '.key');
             }
             return redirect()->back()->with('success', 'Patient removed successfully!');
         } else {

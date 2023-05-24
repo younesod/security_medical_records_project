@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConsentRequest;
+use App\Models\Doctor;
 use App\Models\DoctorPatient;
+use App\Models\MedicalRecord;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ConsentRequestController extends Controller
 {
@@ -51,6 +54,7 @@ class ConsentRequestController extends Controller
         $action = $request->input('action');
         $patientId = Auth::user()->patient->patient_id;
         $doctorId = $request->input('doctor_id');
+        $doctor=Doctor::where('doctor_id',$doctorId)->first();
         // Récupérer la demande de consentement correspondante
         $consentRequest = ConsentRequest::where('patient_id', $patientId)
             ->where('doctor_id', $doctorId)
@@ -66,6 +70,18 @@ class ConsentRequestController extends Controller
             $doctorPatient = new DoctorPatient();
             $doctorPatient->doctor_id = $doctorId;
             $doctorPatient->patient_id = $patientId;
+
+            //recuperer la clé de chiffrement symmétrique -> decrypter -> crypter avec la clé public du médecin associé
+            $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
+            foreach($files as $file){
+                $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
+                $decryptedKey = '';
+                $filePrivateKey = file_get_contents(Auth::user()->private_key);
+                openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
+                openssl_public_encrypt($decryptedKey, $encryptedKeyDoctor, $doctor->user->public_key);
+                Storage::put('public/medical_records/' . $file->name . $doctor->user->email . '.key', $encryptedKeyDoctor);
+            }
+
             $doctorPatient->save();
             return redirect()->back()->with('success', 'You have accepted the doctor\'s invitation');
         } elseif ($action === 'rejected') {
