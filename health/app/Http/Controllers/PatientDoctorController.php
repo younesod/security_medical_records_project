@@ -76,7 +76,8 @@ class PatientDoctorController extends Controller
                     $file=MedicalRecord::where('user_id',Auth::user()->id)->first();
                     $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
                     $decryptedKey='';
-                    openssl_private_decrypt($encryptedKey, $decryptedKey, Auth::user()->private_key);
+                    $filePrivateKey= file_get_contents(Auth::user()->private_key);
+                    openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
                     openssl_public_encrypt($decryptedKey, $encryptedKeyDoctor, $realDoctor->user->public_key);
                     Storage::put('public/medical_records/' . $file->name.$realDoctor->user->email . '.key', $encryptedKeyDoctor);
                 }

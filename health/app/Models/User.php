@@ -15,7 +15,12 @@ use phpseclib3\Crypt\RSA;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    private static $paths_to_private_key;
 
+    public function __construct()
+    {
+        self::$paths_to_private_key = env('PATH_TO_PRIVATE_KEY');
+    }
     /**
      * The attributes that are mass assignable.
      *
@@ -103,8 +108,8 @@ class User extends Authenticatable
 
         // Store the private key securely (example: store in the database)
         $this->public_key = $publicKey;
-        $message=$this->email;
-        $this->sign_public_key=$privateKey->sign($message);
+        $message = $this->email;
+        $this->sign_public_key = $privateKey->sign($message);
         $this->save();
 
         // Return the public key for further use
@@ -132,25 +137,37 @@ class User extends Authenticatable
     //     $this->save();
     // }
 
-    public function gen(){
+    public function gen()
+    {
         //create the keypair
         $config = array(
             'private_key_bits' => 2048, // Taille de la clé privée en bits
             'private_key_type' => OPENSSL_KEYTYPE_RSA, // Algorithme de chiffrement
         );
-        
+
         $res = openssl_pkey_new($config);
         // get the privatekey
-        openssl_pkey_export($res,$privatekey);
+        openssl_pkey_export($res, $privatekey);
+        $publickey = openssl_pkey_get_details($res);
+        $publickey = $publickey['key'];
+        $path = self::$paths_to_private_key. $this->email . '.pem';
+        // openssl ecparam -name prime256v1 -genkey -noout -out be_ea_key.pem  
+        // openssl ec -in be_ea_key.pem -pubout -out public_key.pem 
+        // exec('openssl ecparam -name prime256v1 -genkey -noout -out '.$path);
+        $commands = 'openssl genpkey -algorithm RSA -out ' . $path . ' -pkeyopt rsa_keygen_bits:2048';
+        exec($commands);
+        // // Chemin vers le fichier de clé publique
+        $publicKeyPath = self::$paths_to_private_key . $this->email . '.pub';
+        // dd($publicKeyPath);
+        // // Exécution de la commande pour générer la clé publique
+        // dd($publicKeyPath);
+        // exec('openssl ec -in '.$path.' -pubout -out '.$publicKeyPath);
+        exec('openssl rsa -in ' . $path . ' -pubout -out ' . $publicKeyPath);
+        $publicKeyContent = file_get_contents($publicKeyPath);
+        $this->private_key = $path;
+        $this->public_key = $publicKeyContent;
+        // unlink($publicKeyPath);
 
-        $publickey=openssl_pkey_get_details($res);
-        $publickey=$publickey['key'];
-
-
-        $this->public_key=$publickey;
-        $this->private_key=$privatekey;
         $this->save();
-    
-
     }
 }

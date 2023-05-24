@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DoctorPatient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,9 +38,11 @@ class PatientRecordController extends Controller
             $patientId = $patient->user_id;
 
             $existingRecord = MedicalRecord::where('user_id', $patientId)->where('name', $name)->first();
-
+            // $existingDoctorPatientRelation= DoctorPatient::where('user_id',$patientId);
+            // dd($existingDoctorPatientRelation);
             if ($existingRecord) {
                 // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
+                //là on doit recuperer toute les clés 
                 $existingRecord->file = $request->file;
                 $existingRecord->name = $existingRecord->file->getClientOriginalName();
                 $existingRecord->file_ext = $extension;
@@ -47,13 +50,10 @@ class PatientRecordController extends Controller
                 return redirect()->back()->with('success', 'Le fichier a bien été modifié.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
-
                 $record = new MedicalRecord();
                 $record->file = $request->file;
                 $record->name = $record->file->getClientOriginalName();
                 $record->user_id = $patientId;
-
-                $filePath = 'public/medical_records/' . $name;
                 // $encryptedContent = Crypt::encrypt($file->getContent());
                 // Storage::put($filePath, $encryptedContent);
 
@@ -69,15 +69,11 @@ class PatientRecordController extends Controller
 
                 // Chiffrer la clé de chiffrement symétrique avec la clé publique
                 //créer des chiffrments symétrique avec autant de ligne qu'il y a dans doctor patient associé au patient
-                $another_user=User::find(3);
-                openssl_public_encrypt($encryptionKey, $encryptedKey1, Auth::user()->public_key);
-                openssl_public_encrypt($encryptionKey, $encryptedKey2, $another_user->public_key);
-
+                openssl_public_encrypt($encryptionKey, $encryptedKey, Auth::user()->public_key);
                 // Stocker le fichier chiffré, l'IV et la clé chiffrée
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 Storage::put('public/medical_records/' . $name . '.iv', $iv);
-                Storage::put('public/medical_records/' . $name . '.key', $encryptedKey1);
-                Storage::put('public/medical_records/' . $name .'another'.'.key', $encryptedKey2);
+                Storage::put('public/medical_records/' . $name . '.key', $encryptedKey);
 
                 // $record->file_path = $request->file->storeAs('public/medical_records', $record->name);
                 // $fileContent= Storage::get($record->file_path);
@@ -122,7 +118,8 @@ class PatientRecordController extends Controller
             $iv = Storage::get('public/medical_records/' . $name . '.iv');
             $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
             // $encryptedKey2=Storage::get('public/medical_records/' . $name .'another'.'.key');
-            openssl_private_decrypt($encryptedKey, $decryptedKey, Auth::user()->private_key);
+            $pathPrivateKey=file_get_contents(Auth::user()->private_key);
+            openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
 
 

@@ -18,13 +18,6 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // $privateKey = RSA::createKey(2048);
-        // $publicKey = $privateKey->getPublicKey();
-        // // Supprimer les en-têtes et les pieds de page de la clé publique
-        // $publicKey = preg_replace('/\R/', '', $publicKey);
-        // $publicKey = str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----'], '', $publicKey);
-
-
         $user = User::create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',

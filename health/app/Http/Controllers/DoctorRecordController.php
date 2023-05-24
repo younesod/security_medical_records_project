@@ -71,8 +71,7 @@ class DoctorRecordController extends Controller
                 return redirect()->back()->with('success', 'Le fichier a bien été ajouté.');
             }
         
-         return redirect()->back()->with('error', 'Veuillez renseigner un nom de fichier.');
-        
+        return redirect()->back()->with('error', 'Veuillez renseigner un nom de fichier.');
     }
     public function deleteRecordOfPatient(Request $request){
         $fileId = $request->fileId;
@@ -103,7 +102,8 @@ class DoctorRecordController extends Controller
             $encryptedContent = Storage::get('public/medical_records/' . $name . '.bin');
             $iv = Storage::get('public/medical_records/' . $name . '.iv');
             $encryptedKey = Storage::get('public/medical_records/' . $name .$user->email. '.key');
-            openssl_private_decrypt($encryptedKey, $decryptedKey, $user->private_key);
+            $filePrivateKey=file_get_contents($user->private_key);
+            openssl_private_decrypt($encryptedKey, $decryptedKey,$filePrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
 
 
