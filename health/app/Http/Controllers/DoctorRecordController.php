@@ -18,6 +18,19 @@ use Redirect;
 
 class DoctorRecordController extends Controller
 {
+    /**
+     * Valid file extensions.
+     *
+     * @var array
+     */
+    private static $validExtensions = ['txt', 'csv', 'pdf', 'jpg', 'jpeg', 'png', 'docx', 'org'];
+
+    /**
+     * Get the patients with medical records associated with a doctor.
+     *
+     * @param  int  $doctorId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function getPatientsWithMedicalRecords($doctorId)
     {
         $patients =  Patient::leftJoin('doctor_patient', 'patients.patient_id', '=', 'doctor_patient.patient_id')
@@ -29,6 +42,11 @@ class DoctorRecordController extends Controller
         return $patients;
     }
 
+    /**
+     * Display the medical records of the doctor's patients.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showRecordDoctor()
     {
         $doctorId = Auth::user()->doctor->doctor_id;
@@ -39,49 +57,65 @@ class DoctorRecordController extends Controller
         return view('doctor.doctor_show_record', ['patients' => $patients]);
     }
 
+
+    /**
+     * Display the medical records of a specific patient.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function showRecordOfPatient(Request $request)
     {
-     
+
         $id = $request->patient_id;
         $files = DB::table('medical_records')
             ->where('user_id', $id)
             ->get();
-        $patient= Patient::where('user_id',$id)->first();
+        $patient = Patient::where('user_id', $id)->first();
         session(['patient_id' => $id,]);
-        return view('detail_record', ['files' => $files,'patient'=>$patient]);
+        return view('detail_record', ['files' => $files, 'patient' => $patient]);
     }
 
+
+    /**
+     * Add a medical record for a patient.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function addRecordOfPatient(Request $request)
-    {  
-         $userId = $request->id;
-    
+    {
+        $userId = $request->id;
         if ($request->hasFile('file')) {
-           // $request->filled('file');
+            // $request->filled('file');
             $file = $request->file('file');
             $name = $request->file->getClientOriginalName();
             $extension = $request->file->getClientOriginalExtension();
-            $user_id = $request->id;
-            $existingRecord = MedicalRecord::where('user_id', $user_id)->where('name', $name)->first();
+            if (!in_array($extension, self::$validExtensions)) {
+                return redirect()->back()->with('error', 'File\'s extension unauthorized.');
+            }
 
+            $existingRecord = MedicalRecord::where('user_id', $userId)->where('name', $name)->first();
+            $userPatient = User::where('id', $userId)->first();
             if ($existingRecord) {
                 // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
                 $existingRecord->name = $name;
                 $existingRecord->file = $request->file;
                 //Encrypt the received file with the ciphered symmetric key
                 $fileContent = file_get_contents($file->path());
-                $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
+                $encryptedKey = Storage::get('public/medical_records/' . $name . $userPatient->email . '.key');
                 $iv = Storage::get('public/medical_records/' . $name . '.iv');
                 $pathPrivateKey = file_get_contents(Auth::user()->private_key);
                 openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
                 $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 $existingRecord->save();
-                return redirect()->route('doctor.dossierFile')->with(['patient_id'=> $userId])->with('success', 'The file has been modified.');
+                return redirect()->route('doctor.dossierFile')->with(['patient_id' => $userId])->with('success', 'The file has been modified.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
                 $record = new MedicalRecord();
                 $record->name = $name;
-                $record->user_id = $user_id;
+                $record->user_id = $userId;
                 $record->file = $request->file;
                 // $record->file_path = $request->file->storeas('public/medical_records', $record->name);
                 // Récupérer le contenu du fichier
@@ -103,26 +137,30 @@ class DoctorRecordController extends Controller
                     }
                 }
                 //The same thing but for the patient
-                $patient = Patient::where('user_id', $user_id)->first();
-                openssl_public_encrypt($encryptionKey, $encryptedKey, $patient->user->public_key);
+                openssl_public_encrypt($encryptionKey, $encryptedKey, $userPatient->public_key);
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 Storage::put('public/medical_records/' . $name . '.iv', $iv);
-                Storage::put('public/medical_records/' . $name . '.key', $encryptedKey);
+                Storage::put('public/medical_records/' . $name . $userPatient->email . '.key', $encryptedKey);
                 $record->file_path = 'public/medical_records/' . $name . '.bin';
                 $record->file_ext = $extension;
                 $record->save();
-            
+
 
                 //  return redirect()->route('doctor.dossierFile')->with('success', 'The file has been uploaded.');
-                return redirect()->route('doctor.dossierFile',['patient_id'=> $userId])->with('success', 'The file has been uploaded.');
-           
+                return redirect()->route('doctor.dossierFile', ['patient_id' => $userId])->with('success', 'The file has been uploaded.');
             }
         } else {
             // return redirect()->route('doctor.dossierFile')->with('error', 'You need to add a file.');
-            return redirect()->route('doctor.dossierFile',['patient_id'=> $userId])->with('error', 'You need to add a file.');
+            return redirect()->route('doctor.dossierFile', ['patient_id' => $userId])->with('error', 'You need to add a file.');
         }
     }
 
+    /**
+     * Delete a medical record of a patient.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteRecordOfPatient(Request $request)
     {
         $fileId = $request->fileId;
@@ -139,13 +177,19 @@ class DoctorRecordController extends Controller
         }
         Storage::delete('public/medical_records/' . $name . '.bin');
         Storage::delete('public/medical_records/' . $name . '.iv');
-        Storage::delete('public/medical_records/' . $name . '.key');
+        Storage::delete('public/medical_records/' . $name . $patient->user->email . '.key');
         DB::table('medical_records')->where('id', '=', $fileId)->delete();
-        return redirect()->route('doctor.dossierFile',['patient_id'=> $patientId])->with('success', 'The file has been uploaded.');
+        return redirect()->route('doctor.dossierFile', ['patient_id' => $patientId])->with('success', 'The file has been uploaded.');
     }
 
+    /**
+     * Download a medical record file.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+     */
     public function download(Request $request)
-    {   
+    {
         $id = $request->fileId;
         $medicalRecord = MedicalRecord::findOrFail($id);
 
@@ -159,7 +203,6 @@ class DoctorRecordController extends Controller
             $filePrivateKey = file_get_contents($user->private_key);
             openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
-
 
             // Créer un fichier temporaire avec le contenu décrypté
             $tempFilePath = sys_get_temp_dir() . '/' . $name;

@@ -9,7 +9,19 @@ use Illuminate\Support\Str;
 class MedicalRecord extends Model
 {
     use HasFactory;
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
     public $incrementing = false;
+
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
     protected static function boot(){
         parent::boot();
 

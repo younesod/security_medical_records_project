@@ -46,7 +46,7 @@ Route::delete('/admin/deleteRole',[UserController::class,'deleteUser'])->name('a
 Route::get('/notification',[ConsentRequestController::class,'showRequestsDoctor'])->name('consent_request')->middleware('auth', 'role:patient');
 Route::get('/patient',[PatientDoctorController::class,'allDoctors'])->name('showDoctors')->middleware('auth', 'role:patient');
 Route::get('/dossier',[PatientRecordController::class,'allRecord'])->name('showRecord')->middleware('auth', 'role:patient');
-Route::get('/patient/download/{id}', [PatientRecordController::class, 'download'])->name('patient_download')->where('id', '[0-9]+')->middleware('auth', 'role:patient');
+Route::get('/patient/download/{id}', [PatientRecordController::class, 'download'])->name('patient_download')->middleware('auth', 'role:patient');
 Route::get('/patient/doctors', [PatientDoctorController::class, 'doctorsPatient'])->name('medicalRecord')->middleware('auth', 'role:patient');
 
 Route::delete('/patient/deleteDoctor',[PatientDoctorController::class,'deleteDoctor'])->name('patient_delete_doctor')->middleware('auth', 'role:patient');

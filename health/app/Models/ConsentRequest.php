@@ -11,11 +11,19 @@ class ConsentRequest extends Model
 {
     use HasFactory;
 
-    // protected $table = 'consent_request';
+    /**
+     * Get the doctor associated with the consent request.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function doctor()
     {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'doctor_id');
     }
+
+    /**
+     * Get the patient associated with the consent request.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function patient()
     {
         return $this->belongsTo(Patient::class);

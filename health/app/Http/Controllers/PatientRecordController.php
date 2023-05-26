@@ -17,7 +17,18 @@ use phpseclib3\Crypt\RSA;
 
 class PatientRecordController extends Controller
 {
+    /**
+     * Valid file extensions.
+     *
+     * @var array
+     */
     private static $validExtensions = ['txt', 'csv', 'pdf', 'jpg', 'jpeg', 'png', 'docx', 'org'];
+
+    /**
+     * Display all medical records of the logged-in patient.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function allRecord()
     {
         $patient = Auth::user()->patient;
@@ -25,14 +36,21 @@ class PatientRecordController extends Controller
         $record = MedicalRecord::where('user_id', $patientId)->get();
         return view('patient.recordPatient', ['record' => $record]);
     }
+    /**
+     * 
+     * Create a new medical record file or update an existing file.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function CreateFile(Request $request)
     {
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $name = $request->file->getClientOriginalName();
             $extension = $request->file->getClientOriginalExtension();
-            if (!in_array($extension, PatientRecordController::$validExtensions)) {
-                return redirect()->back()->with('error', 'Extension\'s file unauthorized.');
+            if (!in_array($extension, self::$validExtensions)) {
+                return redirect()->back()->with('error', 'File\'s extension unauthorized.');
             }
 
             $patient = Auth::user()->patient;
@@ -46,7 +64,7 @@ class PatientRecordController extends Controller
                 $existingRecord->file_ext = $extension;
                 //Encrypt the received file with the ciphered symmetric key
                 $fileContent = file_get_contents($file->path());
-                $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
+                $encryptedKey = Storage::get('public/medical_records/' . $name . Auth::user()->email . '.key');
                 $iv = Storage::get('public/medical_records/' . $name . '.iv');
                 $pathPrivateKey = file_get_contents(Auth::user()->private_key);
                 openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
@@ -84,11 +102,11 @@ class PatientRecordController extends Controller
                 // Stocker le fichier chiffré, l'IV et la clé chiffrée
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 Storage::put('public/medical_records/' . $name . '.iv', $iv);
-                Storage::put('public/medical_records/' . $name . '.key', $encryptedKey);
+                Storage::put('public/medical_records/' . $name . Auth::user()->email . '.key', $encryptedKey);
 
-            
+
                 $record->file_path = 'public/medical_records/' . $name . '.bin';
-              
+
                 $record->file_ext = $extension;
                 $record->save();
                 return redirect()->back()->with('success', 'The file has been uploaded.');
@@ -99,7 +117,12 @@ class PatientRecordController extends Controller
         }
     }
 
-
+    /**
+     * Delete a medical record file.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function DeleteFile(Request $request)
     {
         $fileId = $request->fileId;
@@ -116,22 +139,28 @@ class PatientRecordController extends Controller
         }
         Storage::delete('public/medical_records/' . $name . '.bin');
         Storage::delete('public/medical_records/' . $name . '.iv');
-        Storage::delete('public/medical_records/' . $name . '.key');
+        Storage::delete('public/medical_records/' . $name . Auth::user()->email . '.key');
         DB::table('medical_records')->where('id', '=', $fileId)->delete();
         return redirect()->back()->with('success', 'The file has been deleted.');
     }
+
+    /**
+     * Download a medical record file.
+     *
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+     */
     public function download($id)
     {
         $medicalRecord = MedicalRecord::findOrFail($id);
 
         $filePath = $medicalRecord->file_path;
         $name = $medicalRecord->name;
-        $another_user = User::find(3);
 
         if ($filePath && Storage::exists($filePath)) {
             $encryptedContent = Storage::get('public/medical_records/' . $name . '.bin');
             $iv = Storage::get('public/medical_records/' . $name . '.iv');
-            $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
+            $encryptedKey = Storage::get('public/medical_records/' . $name . Auth::user()->email . '.key');
             $pathPrivateKey = file_get_contents(Auth::user()->private_key);
             openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);

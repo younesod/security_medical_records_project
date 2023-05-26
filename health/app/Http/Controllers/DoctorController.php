@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Storage;
 
 class DoctorController extends Controller
 {
+    /**
+     * Display the patients associated with the doctor.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function patients()
     {
         // Récupérer l'utilisateur authentifié (le médecin)
@@ -34,7 +39,12 @@ class DoctorController extends Controller
         return redirect()->back()->with('error', 'You do not have permission to access this page');
     }
 
-    
+    /**
+     * Remove a patient from the doctor's patient list.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function removePatient(Request $request)
     {
         $patientId = $request->post('patient_id');

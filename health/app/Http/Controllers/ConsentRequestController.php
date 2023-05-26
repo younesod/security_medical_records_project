@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\DB;
 
 class ConsentRequestController extends Controller
 {
+    /**
+     * Add a patient to the doctor's consent request list.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function addPatient(Request $request)
     {
         $patientId = $request->post('patient_id');
@@ -43,6 +49,12 @@ class ConsentRequestController extends Controller
         // Rediriger ou afficher un message de succès
         return redirect()->back()->with('success', 'Your request has been sent and is waiting for confirmation');
     }
+
+    /**
+     * Show the consent requests for a patient.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showRequestsDoctor()
     {
         $patientId = Auth::user()->patient->patient_id;
@@ -52,6 +64,12 @@ class ConsentRequestController extends Controller
         return view('patient.consent_requests', ['requests' => $requests])->with('success', 'Request sent');
     }
 
+    /**
+     * Process a consent request from a patient.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function processConsentRequest(Request $request)
     {
         // Récupérer l'action, l'ID du patient et l'ID du médecin depuis la requête

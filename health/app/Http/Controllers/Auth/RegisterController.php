@@ -70,7 +70,7 @@ class RegisterController extends Controller
             'id' => Str::uuid(),
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make($data['password'],['rounds' => 12]),
             'role' => $data['role'],
         ]);
         $user->generateAndStoreKeyPair();

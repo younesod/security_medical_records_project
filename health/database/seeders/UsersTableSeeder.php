@@ -42,7 +42,7 @@ class UsersTableSeeder extends Seeder
         $user->generateAndStoreKeyPair();
 
         $user_patient = User::create([
-            'name' => 'Test',
+            'name' => 'Leeroy Jenkins',
             'email' => 'test@gmail.com',
             'password' => Hash::make('test', ['rounds' => 12]),
             'role' => 'patient',
