@@ -7,15 +7,14 @@
                 <div class="card">
 
 
-                    <div class="card-header">{{ __('Record') }}</div>
+                    <div class="card-header">{{ __('Dossier') }}</div>
                     @foreach ($files as $file)
                         @if ($files->isEmpty())
                             No files are available
 
-
-                            <form action="{{ route('doctor_add_file', ['id' => $id]) }}" method="post">
+                            <form action="{{ route('doctor_add_file') }}" method="post" enctype="multipart/form-data">
                                 @csrf
-                                @method('POST')
+                                @method('post')
                                 <input type="file" name="fileName">
                                 <input type="hidden" name="id" value="{{ $id }}">
                                 <input type="submit" value="Upload" class="btn btn-primary">
@@ -29,28 +28,31 @@
                                 <tr>
                                     <td> {{ $file->name }} </td>
                                     <td>
-                                        <form action="{{ route('doctor_delete_file', ['id' => $file->user_id]) }}"
-                                            method="POST">
+                                        <form action="{{ route('doctor_delete_file') }}" method="post">
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="fileId" value="{{ $file->id }}">
-                                            <input type="hidden" name="patientId" value="{{ $patient->patient_id }}">
+                                            <input type="hidden" name="patientId" value="{{ $file->user_id }}">
                                             <button type="submit" class="btn btn-danger btn-sm"><i
                                                     class="fa fa-trash-o"></i></button>
                                         </form>
-                                        <a href="{{ route('doctor_download', ['id' => $file->id]) }}"
-                                            class="btn btn-primary ">Download</a>
+                                        <form action="{{ route('doctor_download') }}" method="post">
+                                            @csrf
+                                            @method('post')
+                                            <input type="hidden" name="fileId" value="{{ $file->id }}">
+                                            <input type="hidden" name="patientId" value="{{ $file->user_id }}">
+                                            <button type="submit" class="btn btn-primary ">Download</button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <form action="{{ route('doctor_add_file', ['id' => request()->route('id')]) }}" method="post"
-                        enctype="multipart/form-data">
+                    <form action="{{ route('doctor_add_file')}}" method="post" enctype="multipart/form-data">
                         @csrf
-                        @method('POST')
+                        @method('post')
                         <input type="file" name="file">
-                        <input type="hidden" name="id" value="{{ request()->route('id') }}">
+                        <input type="hidden" name="id" value="{{ session('patient_id') }}">
                         <input type="submit" value="Upload" class="btn btn-primary">
                     </form>
                 </div>

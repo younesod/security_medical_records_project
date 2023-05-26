@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\ConsentRequest;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
@@ -10,6 +11,7 @@ use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ConsentRequestController extends Controller
 {
@@ -44,7 +46,9 @@ class ConsentRequestController extends Controller
     public function showRequestsDoctor()
     {
         $patientId = Auth::user()->patient->patient_id;
-        $requests = ConsentRequest::where('patient_id', $patientId)->get();
+        $requests = ConsentRequest::where('patient_id', $patientId)->with('doctor')->get();
+
+    
         return view('patient.consent_requests', ['requests' => $requests])->with('success', 'Request sent');
     }
 

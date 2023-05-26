@@ -23,7 +23,7 @@ class PatientRecordController extends Controller
         $patient = Auth::user()->patient;
         $patientId = $patient->user_id;
         $record = MedicalRecord::where('user_id', $patientId)->get();
-        return view('recordPatient', ['record' => $record]);
+        return view('patient.recordPatient', ['record' => $record]);
     }
     public function CreateFile(Request $request)
     {
@@ -60,8 +60,6 @@ class PatientRecordController extends Controller
                 $record->file = $request->file;
                 $record->name = $record->file->getClientOriginalName();
                 $record->user_id = $patientId;
-                // $encryptedContent = Crypt::encrypt($file->getContent());
-                // Storage::put($filePath, $encryptedContent);
 
 
                 // Récupérer le contenu du fichier
@@ -88,13 +86,9 @@ class PatientRecordController extends Controller
                 Storage::put('public/medical_records/' . $name . '.iv', $iv);
                 Storage::put('public/medical_records/' . $name . '.key', $encryptedKey);
 
-                // $record->file_path = $request->file->storeAs('public/medical_records', $record->name);
-                // $fileContent= Storage::get($record->file_path);
-                // $rsa =RSA::loadPrivateKey(Auth::user()->private_key);
-                // $ciphertext=$rsa->getPublicKey()->encrypt($fileContent);
-                // Storage::put($record->file_path, $ciphertext);
+            
                 $record->file_path = 'public/medical_records/' . $name . '.bin';
-                // $record->file_path = $filePath;
+              
                 $record->file_ext = $extension;
                 $record->save();
                 return redirect()->back()->with('success', 'The file has been uploaded.');
@@ -138,7 +132,6 @@ class PatientRecordController extends Controller
             $encryptedContent = Storage::get('public/medical_records/' . $name . '.bin');
             $iv = Storage::get('public/medical_records/' . $name . '.iv');
             $encryptedKey = Storage::get('public/medical_records/' . $name . '.key');
-            // $encryptedKey2=Storage::get('public/medical_records/' . $name .'another'.'.key');
             $pathPrivateKey = file_get_contents(Auth::user()->private_key);
             openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);

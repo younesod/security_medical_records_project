@@ -27,7 +27,7 @@
                                                         <form action="{{ route('admin_delete_user')}}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <input type="hidden" name="user_email" value="{{ $user->email }}">
+                                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
                                                         </form>
                                                     </td>

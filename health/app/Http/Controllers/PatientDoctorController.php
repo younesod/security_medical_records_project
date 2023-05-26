@@ -134,7 +134,7 @@ class PatientDoctorController extends Controller
     }
     public function addPatient(Request $request)
     {
-
+        dd($request);
         // Récupérer l'ID du patient sélectionné
         $patientId = $request->post('patient_id');
 

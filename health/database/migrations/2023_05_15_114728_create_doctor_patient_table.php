@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Ramsey\Uuid\Uuid;
 
 return new class extends Migration
 {
@@ -12,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('doctor_patient', function (Blueprint $table) {
-            $table->unsignedBigInteger('doctor_id');
-            $table->unsignedBigInteger('patient_id');
+            $table->uuid('doctor_id');
+            $table->uuid('patient_id');
             $table->timestamps();
     
             $table->foreign('doctor_id')->references('doctor_id')->on('doctors')->onDelete('cascade');

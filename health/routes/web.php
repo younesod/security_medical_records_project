@@ -58,17 +58,18 @@ Route::post('/patient/addDoctor',[PatientDoctorController::class,'addDoctor'])->
 Route::post('/consent/request/response',[ConsentRequestController::class,'processConsentRequest'])->name('process_consent_request')->middleware('auth', 'role:patient');
 
 //doctor
-Route::get('/doctor/download/{id}', [DoctorRecordController::class, 'download'])->name('doctor_download')->where('id', '[0-9]+')->middleware('auth', 'role:doctor');
+
 Route::get('/doctor/patient',[PatientDoctorController::class,'showPatient'])->name('showPatients')->middleware('auth', 'role:doctor');
 Route::get('/doctor/patients',[DoctorController::class, 'patients'])->name('medicalRecordDoctor')->middleware('auth', 'role:doctor');
 Route::get('/doctor/dossier',[DoctorRecordController::class,'showRecordDoctor'])->name('showRecordDoctor')->middleware('auth', 'role:doctor');
-Route::get('/doctor/dossier/{id}', [DoctorRecordController::class, 'showRecordOfPatient'])->name('doctor.dossierFile')->where('id', '[0-9]+')->middleware('auth', 'role:doctor');
 
-Route::delete('/doctor/dossier/{id}/delete', [DoctorRecordController::class, 'deleteRecordOfPatient'])->name('doctor_delete_file')->where('id', '[0-9]+')->middleware('auth', 'role:doctor');
+
+Route::delete('/doctor/dossier/detail/delete', [DoctorRecordController::class, 'deleteRecordOfPatient'])->name('doctor_delete_file')->middleware('auth', 'role:doctor');
 Route::delete('/doctor/deletePatient',[PatientDoctorController::class,'deletePatient'])->name('doctor_delete_patient')->middleware('auth', 'role:doctor');
 Route::delete('/removePatient',[DoctorController::class,'removePatient'])->name('remove_patient')->middleware('auth','role:doctor');
 
 Route::post('/consent/request/add',[ConsentRequestController::class,'addPatient'])->name('request_add_patient')->middleware('auth', 'role:doctor');
 Route::post('/doctor/addPatient',[PatientDoctorController::class,'addPatient'])->name('doctor_add_patient')->middleware('auth', 'role:doctor');
-Route::post('/doctor/dossier/{id}/add', [DoctorRecordController::class, 'addRecordOfPatient'])->name('doctor_add_file')->where('id', '[0-9]+')->middleware('auth', 'role:doctor');
-
+Route::post('/doctor/dossier/detail/add', [DoctorRecordController::class, 'addRecordOfPatient'])->name('doctor_add_file')->middleware('auth', 'role:doctor');
+Route::post('/doctor/dossier/detail/download', [DoctorRecordController::class, 'download'])->name('doctor_download')->middleware('auth', 'role:doctor');
+Route::match(['post','get'],'/doctor/dossier/detail', [DoctorRecordController::class, 'showRecordOfPatient'])->name('doctor.dossierFile')->middleware('auth', 'role:doctor');

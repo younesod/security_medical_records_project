@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Ramsey\Uuid\Uuid;
 return new class extends Migration
 {
     /**
@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('medical_records', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->unsignedBigInteger('user_id');
+            $table->uuid('user_id');
             $table->binary('file');
             $table->string('file_ext');
             $table->string('file_path');

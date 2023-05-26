@@ -11,8 +11,14 @@
                                 <ul class="list-group">
                      
                                              @foreach ($patients as $patient)
-                                              <li class="list-group-item list-group-item-action"> <a href="{{ route('doctor.dossierFile', ['id' => $patient->user_id]) }}">Record of {{ $patient->name }}</a>
-                                                </li>
+                                                <form action="{{ route('doctor.dossierFile')}}" method ="POST" >
+                                                @csrf
+                                                @method('POST') 
+                                                <input type="hidden" name="patient_id" value="{{ $patient->user_id }}">
+                                                <button type="submit" class="btn btn-link" style="padding: 0; border: none; background: none;">
+                                                Record of {{ $patient->name }}
+                                                </button>
+                                                </form>
                                               @endforeach
                                
                                         </ul>

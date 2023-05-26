@@ -12,6 +12,9 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Crypt;
+use Redirect;
 
 class DoctorRecordController extends Controller
 {
@@ -33,30 +36,32 @@ class DoctorRecordController extends Controller
 
         $patients = $this->getPatientsWithMedicalRecords($doctorId);
 
-        return view('doctor_show_record', ['patients' => $patients]);
+        return view('doctor.doctor_show_record', ['patients' => $patients]);
     }
 
-    public function showRecordOfPatient($id)
+    public function showRecordOfPatient(Request $request)
     {
-
+     
+        $id = $request->patient_id;
         $files = DB::table('medical_records')
             ->where('user_id', $id)
             ->get();
         $patient= Patient::where('user_id',$id)->first();
-
+        session(['patient_id' => $id,]);
         return view('detail_record', ['files' => $files,'patient'=>$patient]);
     }
 
     public function addRecordOfPatient(Request $request)
-    {
+    {  
+         $userId = $request->id;
+    
         if ($request->hasFile('file')) {
-            $request->filled('file');
+           // $request->filled('file');
             $file = $request->file('file');
             $name = $request->file->getClientOriginalName();
             $extension = $request->file->getClientOriginalExtension();
             $user_id = $request->id;
             $existingRecord = MedicalRecord::where('user_id', $user_id)->where('name', $name)->first();
-
 
             if ($existingRecord) {
                 // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
@@ -71,7 +76,7 @@ class DoctorRecordController extends Controller
                 $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 $existingRecord->save();
-                return redirect()->back()->with('success', 'The file has been modified.');
+                return redirect()->route('doctor.dossierFile')->with(['patient_id'=> $userId])->with('success', 'The file has been modified.');
             } else {
                 // Si aucun enregistrement n'existe, nous en créons un nouveau
                 $record = new MedicalRecord();
@@ -79,7 +84,6 @@ class DoctorRecordController extends Controller
                 $record->user_id = $user_id;
                 $record->file = $request->file;
                 // $record->file_path = $request->file->storeas('public/medical_records', $record->name);
-
                 // Récupérer le contenu du fichier
                 $fileContent = file_get_contents($file->path());
                 // Générer une clé de chiffrement symétrique
@@ -88,6 +92,7 @@ class DoctorRecordController extends Controller
                 $iv = random_bytes(16);
                 // Chiffrer le contenu du fichier avec la clé de chiffrement symétrique et l'IV
                 $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $encryptionKey, OPENSSL_RAW_DATA, $iv);
+                $user_id = session('patient_id');
                 $patient = Patient::where('user_id', $user_id)->first();
                 $doctorPatient = DoctorPatient::where('patient_id', $patient->patient_id)->get();
                 if ($doctorPatient) {
@@ -106,19 +111,26 @@ class DoctorRecordController extends Controller
                 $record->file_path = 'public/medical_records/' . $name . '.bin';
                 $record->file_ext = $extension;
                 $record->save();
-                return redirect()->back()->with('success', 'The file has been uploaded.');
+            
+
+                //  return redirect()->route('doctor.dossierFile')->with('success', 'The file has been uploaded.');
+                return redirect()->route('doctor.dossierFile',['patient_id'=> $userId])->with('success', 'The file has been uploaded.');
+           
             }
         } else {
-            return redirect()->back()->with('error', 'You need to add a file.');
+            // return redirect()->route('doctor.dossierFile')->with('error', 'You need to add a file.');
+            return redirect()->route('doctor.dossierFile',['patient_id'=> $userId])->with('error', 'You need to add a file.');
         }
     }
+
     public function deleteRecordOfPatient(Request $request)
     {
         $fileId = $request->fileId;
-        $file = MedicalRecord::find($fileId);
+        $file = MedicalRecord::findOrFail($fileId);
         $name = $file->name;
         $patientId = $request->patientId;
-        $doctorPatient = DoctorPatient::where('patient_id', $patientId)->get();
+        $patient = Patient::where('user_id', $patientId)->first();
+        $doctorPatient = DoctorPatient::where('patient_id', $patient->patient_id)->get();
         if ($doctorPatient) {
             foreach ($doctorPatient as $doctor) {
                 $doctorData = Doctor::find($doctor->doctor_id);
@@ -129,11 +141,12 @@ class DoctorRecordController extends Controller
         Storage::delete('public/medical_records/' . $name . '.iv');
         Storage::delete('public/medical_records/' . $name . '.key');
         DB::table('medical_records')->where('id', '=', $fileId)->delete();
-        return redirect()->back()->with('success', 'The file has been deleted.');
+        return redirect()->route('doctor.dossierFile',['patient_id'=> $patientId])->with('success', 'The file has been uploaded.');
     }
 
-    public function download($id)
-    {
+    public function download(Request $request)
+    {   
+        $id = $request->fileId;
         $medicalRecord = MedicalRecord::findOrFail($id);
 
         $filePath = $medicalRecord->file_path;

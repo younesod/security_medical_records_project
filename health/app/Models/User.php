@@ -8,17 +8,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     private static $paths_to_private_key;
-
-    public function __construct()
-    {
-        self::$paths_to_private_key = env('PATH_TO_PRIVATE_KEY');
-    }
+    public $incrementing = false;
+    protected $primaryKey = 'id';
+    // public function __construct()
+    // {
+    //     self::$paths_to_private_key = env('PATH_TO_PRIVATE_KEY');
+       
+        
+    // }
     /**
      * The attributes that are mass assignable.
      *
@@ -52,7 +56,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+   
     /**
      * Verify if the user is an admin.
      */
@@ -90,6 +94,14 @@ class User extends Authenticatable
     public function doctor()
     {
         return $this->hasOne(Doctor::class);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->id = Str::uuid();
+        });
     }
 
     /**
@@ -148,6 +160,7 @@ class User extends Authenticatable
         // openssl_pkey_export($res, $privatekey);
         // $publickey = openssl_pkey_get_details($res);
         // $publickey = $publickey['key'];
+        self::$paths_to_private_key = env('PATH_TO_PRIVATE_KEY');
         $path = self::$paths_to_private_key. $this->email . '.pem';
         // openssl ecparam -name prime256v1 -genkey -noout -out be_ea_key.pem  
         // openssl ec -in be_ea_key.pem -pubout -out public_key.pem 

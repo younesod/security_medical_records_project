@@ -16,7 +16,7 @@
                 <tbody>
                     @foreach ($requests as $request)
                             <tr>
-                                <td>{{ $request->doctorUser->user->name }}</td>
+                                <td>{{$request->doctor->user->name }}</td>
                                 <td>{{$request->status}}</td>
                                 <td>
                                         <form action="{{ route('process_consent_request') }}" method="POST">

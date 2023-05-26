@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Str;
 class RegisterController extends Controller
 {
     /*
@@ -65,9 +65,9 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
-    protected function create(array $data)
-    {
+    protected function create(array $data){ 
         $user = User::create([
+            'id' => Str::uuid(),
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password'], ['rounds' => 12]),
