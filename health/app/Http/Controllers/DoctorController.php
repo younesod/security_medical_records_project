@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ConsentRequest;
 use App\Models\Doctor;
-use App\Models\DoctorPatient;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
 use Illuminate\Http\Request;
