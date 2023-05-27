@@ -30,7 +30,6 @@ class User extends Authenticatable
         'role',
         'private_key',
         'public_key',
-        'sign_public_key',
     ];
 
     /**
