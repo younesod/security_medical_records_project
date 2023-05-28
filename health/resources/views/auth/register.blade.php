@@ -65,7 +65,17 @@
                                 <input id="role" type="hidden" name="role" value="patient">
                             </div>
                         </div>
-
+                        <div class="row mb-2">
+                            <div class="col-md-6 offset-md-4">
+                            {!! NoCaptcha::display() !!}
+                            {!! NoCaptcha::renderJs() !!}
+                            @if ($errors->has('g-recaptcha-response'))
+                            <div class="text-danger">
+                               <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
+                            </div>
+                              @endif                             
+                            </div>
+                        </div>
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
