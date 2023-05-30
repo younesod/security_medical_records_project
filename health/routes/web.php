@@ -63,12 +63,12 @@ Route::get('/doctor/patients',[DoctorController::class, 'patients'])->name('medi
 Route::get('/doctor/dossier',[DoctorRecordController::class,'showRecordDoctor'])->name('showRecordDoctor')->middleware('auth', 'role:doctor');
 
 
-Route::delete('/doctor/dossier/detail/delete', [DoctorRecordController::class, 'deleteRecordOfPatient'])->name('doctor_delete_file')->middleware('auth', 'role:doctor');
+Route::delete('/doctor/dossier/detail/delete', [DoctorRecordController::class, 'addRequestDeleteFileOfPatient'])->name('doctor_delete_file')->middleware('auth', 'role:doctor');
 Route::delete('/doctor/deletePatient',[PatientDoctorController::class,'deletePatient'])->name('doctor_delete_patient')->middleware('auth', 'role:doctor');
 Route::delete('/removePatient',[DoctorController::class,'removePatient'])->name('remove_patient')->middleware('auth','role:doctor');
 
 Route::post('/consent/request/add',[ConsentRequestController::class,'addPatient'])->name('request_add_patient')->middleware('auth', 'role:doctor');
 Route::post('/doctor/addPatient',[PatientDoctorController::class,'addPatient'])->name('doctor_add_patient')->middleware('auth', 'role:doctor');
-Route::post('/doctor/dossier/detail/add', [DoctorRecordController::class, 'addRecordOfPatient'])->name('doctor_add_file')->middleware('auth', 'role:doctor');
+Route::post('/doctor/dossier/detail/add', [DoctorRecordController::class, 'addRequestRecordOfPatient'])->name('doctor_add_file')->middleware('auth', 'role:doctor');
 Route::post('/doctor/dossier/detail/download', [DoctorRecordController::class, 'download'])->name('doctor_download')->middleware('auth', 'role:doctor');
 Route::match(['post','get'],'/doctor/dossier/detail', [DoctorRecordController::class, 'showRecordOfPatient'])->name('doctor.dossierFile')->middleware('auth', 'role:doctor');

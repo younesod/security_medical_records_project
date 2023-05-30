@@ -19,7 +19,11 @@ return new class extends Migration
             $table->uuid('patient_id');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
-        
+            $table->binary('file')->nullable();
+            $table->string('file_ext')->nullable();
+            $table->string('file_path')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('file_delete')->nullable();
             $table->foreign('doctor_id')->references('doctor_id')->on('doctors')->onDelete('cascade');
             $table->foreign('patient_id')->references('patient_id')->on('patients')->onDelete('cascade');
             
