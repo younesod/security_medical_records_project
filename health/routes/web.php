@@ -27,7 +27,6 @@ Route::get('/', function () {
     } else {
         return view('auth/login');
     }
-    // return view('/home');
 });
 
 Auth::routes();

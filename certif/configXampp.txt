@@ -19,3 +19,32 @@
         Require all granted
     </Directory>
 </VirtualHost>
+
+
+
+
+LINUX //
+sudo nano /opt/lampp/etc/httpd.conf
+
+Recherchez la ligne contenant #Include etc/extra/httpd-vhosts.conf et supprimez le signe dièse (#) au début de la ligne pour activer l'inclusion du fichier de configuration des virtual hosts.
+
+sudo nano /opt/lampp/etc/extra/httpd-vhosts.conf
+// ajouter ceci 
+<VirtualHost *:443>
+    ServerName localhost
+    DocumentRoot "/chemin/vers/votre/projet"
+
+    SSLEngine on
+    SSLCertificateFile "/chemin/vers/votre/certificat.crt"
+    SSLCertificateKeyFile "/chemin/vers/votre/cle_certificat.key"
+
+    <Directory "/chemin/vers/votre/projet">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+//restart le serveur
+sudo /opt/lampp/lampp restart
+changer les droits pour acceder au projet 
+Ensuite changer les droits pour le projet avc chmod 777 -R  /chemin du projet
