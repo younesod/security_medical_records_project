@@ -19,12 +19,11 @@ class DoctorController extends Controller
      */
     public function patients()
     {
-        // Récupérer l'utilisateur authentifié (le médecin)
+        // Recover the authenticated user
         $user = Auth::user();
 
-        // Vérifier si l'utilisateur est un médecin
+        // Check if the user is a doctor
         if ($user->role === 'doctor') {
-            // Récupérer le modèle "Doctor" associé à l'utilisateur
             $doctor = Doctor::where('user_id', $user->id)->first();
 
             if ($doctor) {
@@ -34,7 +33,6 @@ class DoctorController extends Controller
             }
         }
 
-        // Rediriger vers une autre page si l'utilisateur n'est pas un médecin
         return redirect()->back()->with('error', 'You do not have permission to access this page');
     }
 
@@ -59,7 +57,7 @@ class DoctorController extends Controller
             if ($consentRequest) {
                 $consentRequest->delete();
             }
-            //supprimer la clé des fichiers associé au patient
+            //Delete the key from the files associated with the patient
             $files = MedicalRecord::where('user_id', $patient->user_id)->get();
             foreach($files as $file){
                 Storage::delete('public/medical_records/' . $file->name . $doctor->user->email . '.key');

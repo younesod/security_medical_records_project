@@ -72,21 +72,18 @@ class ConsentRequestController extends Controller
      */
     public function processConsentRequest(Request $request)
     {
-        // Récupérer l'action, l'ID du patient et l'ID du médecin depuis la requête
         $file_name = $request->input('file_name');
         $action = $request->input('action');
         $patientId = Auth::user()->patient->patient_id;
         $doctorId = $request->input('doctor_id');
         $doctor = Doctor::where('doctor_id', $doctorId)->first();
-        // Récupérer la demande de consentement correspondante
         $consentRequest = ConsentRequest::where('patient_id', $patientId)
             ->where('doctor_id', $doctorId)
             ->firstOrFail();
         if ($file_name === null && $consentRequest->file_delete === null) {
-            // Traiter l'action soumise dans le formulaire de consentement
             if ($action === 'accepted') {
-
-                // Le patient a accepté la demande de consentement
+                dd("action");
+                //The patient accepted the request for consent
                 $consentRequest->status = 'accepted';
                 $consentRequest->delete();
 
@@ -94,7 +91,6 @@ class ConsentRequestController extends Controller
                 $doctorPatient->doctor_id = $doctorId;
                 $doctorPatient->patient_id = $patientId;
 
-                //recuperer la clé de chiffrement symmétrique -> decrypter -> crypter avec la clé public du médecin associé
                 $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
                 foreach ($files as $file) {
                     $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
@@ -108,16 +104,16 @@ class ConsentRequestController extends Controller
                 $doctorPatient->save();
                 return redirect()->back()->with('success', 'You have accepted the doctor\'s invitation');
             } elseif ($action === 'rejected') {
-                // Le patient a refusé la demande de consentement
+                // The patient refused the request for consent
                 $consentRequest->status = 'rejected';
                 $consentRequest->delete();
 
-                // Effectuer d'autres actions nécessaires en cas de refus
+                // Carry out other necessary actions in the event of refusal
                 return redirect()->back()->with('success', 'You refused the doctor\'s invitation.');
             }
         } else {
             if ($action === 'accepted') {
-                if ($consentRequest->file !== null) {
+                if ($consentRequest->file_name !== null) {
                     //add the file
                     $existingRecord = MedicalRecord::where('user_id', Auth::user()->id)->where('name', $file_name)->first();
                     if ($existingRecord) {
@@ -126,7 +122,6 @@ class ConsentRequestController extends Controller
 
                         $existingRecord->name = $file_name;
                         $existingRecord->user_id = Auth::user()->id;
-                        $existingRecord->file = $file;
                         $existingRecord->file_path = 'public/medical_records/' . $file_name . '.bin';
                         $existingRecord->file_ext = $consentRequest->file_ext;
                         $existingRecord->save();
@@ -136,7 +131,6 @@ class ConsentRequestController extends Controller
                         $record = new MedicalRecord();
                         $record->name = $file_name;
                         $record->user_id = Auth::user()->id;
-                        $record->file = $file;
                         $record->file_path = 'public/medical_records/' . $file_name . '.bin';
                         $record->file_ext = $consentRequest->file_ext;
                         $record->save();
@@ -173,7 +167,6 @@ class ConsentRequestController extends Controller
             }
         }
 
-        // Si aucune action valide n'a été soumise, rediriger vers une autre page ou afficher un message d'erreur approprié
         return redirect()->back()->with('error', 'There was an error in the confirmation of your choice');
     }
 
@@ -187,7 +180,6 @@ class ConsentRequestController extends Controller
         $decryptedKey = '';
 
         openssl_private_decrypt($encryptionKey, $decryptedKey, $pathPrivateKey);
-        //là j'ai la clé décrypté faut que je mette le fichier à jour
         $patient = Patient::where('user_id', Auth::user()->id)->first();
         $doctorPatient = DoctorPatient::where('patient_id', $patient->patient_id)->get();
         if ($doctorPatient) {

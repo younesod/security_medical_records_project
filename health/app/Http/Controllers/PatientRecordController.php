@@ -5,14 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\DoctorPatient;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MedicalRecord;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use phpseclib3\Crypt\RSA;
 
 
 class PatientRecordController extends Controller
@@ -23,6 +20,7 @@ class PatientRecordController extends Controller
      * @var array
      */
     private static $validExtensions = ['txt', 'csv', 'pdf', 'jpg', 'jpeg', 'png', 'docx', 'org'];
+    private static $fileSizeLimit= 5 * 1024 * 1024; //5mo max file size
 
     /**
      * Display all medical records of the logged-in patient.
@@ -45,12 +43,17 @@ class PatientRecordController extends Controller
      */
     public function CreateFile(Request $request)
     {
+
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $name = $request->file->getClientOriginalName();
             $extension = $request->file->getClientOriginalExtension();
+            $size=$file->getSize();
             if (!in_array($extension, self::$validExtensions)) {
                 return redirect()->back()->with('error', 'File\'s extension unauthorized.');
+            }
+            if($size>self::$fileSizeLimit){
+                return redirect()->back()->with('error', 'File\'s size limit exceeded(MAX 5 Mo).');
             }
 
             $patient = Auth::user()->patient;
@@ -58,35 +61,22 @@ class PatientRecordController extends Controller
 
             $existingRecord = MedicalRecord::where('user_id', $patientId)->where('name', $name)->first();
             if ($existingRecord) {
-                // Si un enregistrement existe déjà, nous le mettons à jour avec le nouveau nom de fichier
-                $existingRecord->file = $request->file;
-                $existingRecord->name = $existingRecord->file->getClientOriginalName();
-                $existingRecord->file_ext = $extension;
-                //Encrypt the received file with the ciphered symmetric key
-                $fileContent = file_get_contents($file->path());
-                $encryptedKey = Storage::get('public/medical_records/' . $name . Auth::user()->email . '.key');
-                $iv = Storage::get('public/medical_records/' . $name . '.iv');
-                $pathPrivateKey = file_get_contents(Auth::user()->private_key);
-                openssl_private_decrypt($encryptedKey, $decryptedKey, $pathPrivateKey);
-                $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
-                Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
-                $existingRecord->save();
+                // If a record already exists, we update it with the new file name
+                $existingRecord->storeFile($file);
                 return redirect()->back()->with('success', 'The file has been modified.');
             } else {
-                // Si aucun enregistrement n'existe, nous en créons un nouveau
+                // If no record exists, we create a new one
                 $record = new MedicalRecord();
-                $record->file = $request->file;
-                $record->name = $record->file->getClientOriginalName();
+                $record->name = $file->getClientOriginalName();
                 $record->user_id = $patientId;
 
 
-                // Récupérer le contenu du fichier
                 $fileContent = file_get_contents($file->path());
-                // Générer une clé de chiffrement symétrique
+                // Generate a symmetric encryption key
                 $encryptionKey = random_bytes(32);
-                // Générer un IV aléatoire
+                // Generate a random IV
                 $iv = random_bytes(16);
-                // Chiffrer le contenu du fichier avec la clé de chiffrement symétrique et l'IV
+                // Encrypt file contents with symmetric encryption key and IV
                 $encryptedContent = openssl_encrypt($fileContent, 'AES-256-CBC', $encryptionKey, OPENSSL_RAW_DATA, $iv);
 
                 $doctorPatient = DoctorPatient::where('patient_id', Auth::user()->patient->patient_id)->get();
@@ -97,16 +87,15 @@ class PatientRecordController extends Controller
                         Storage::put('public/medical_records/' . $name . $doctorData->user->email . '.key', $encryptedKey);
                     }
                 }
-                // Chiffrer la clé de chiffrement symétrique avec la clé publique
+                // Encrypt the symmetric encryption key with the public key
                 openssl_public_encrypt($encryptionKey, $encryptedKey, Auth::user()->public_key);
-                // Stocker le fichier chiffré, l'IV et la clé chiffrée
+                // Store encrypted file, IV and encrypted key
                 Storage::put('public/medical_records/' . $name . '.bin', $encryptedContent);
                 Storage::put('public/medical_records/' . $name . '.iv', $iv);
                 Storage::put('public/medical_records/' . $name . Auth::user()->email . '.key', $encryptedKey);
 
 
                 $record->file_path = 'public/medical_records/' . $name . '.bin';
-
                 $record->file_ext = $extension;
                 $record->save();
                 return redirect()->back()->with('success', 'The file has been uploaded.');
@@ -129,7 +118,7 @@ class PatientRecordController extends Controller
         $file = MedicalRecord::find($fileId);
         $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
         $name = $file->name;
-        //Supprimer les fichiers bin, iv et key
+        //Delete bin, iv and key files
         $doctorPatient = DoctorPatient::where('patient_id', Auth::user()->patient->patient_id)->get();
         if ($doctorPatient) {
             foreach ($doctorPatient as $doctor) {
@@ -166,11 +155,11 @@ class PatientRecordController extends Controller
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
 
 
-            // Créer un fichier temporaire avec le contenu décrypté
+            // Create a temporary file
             $tempFilePath = sys_get_temp_dir() . '/' . $name;
             file_put_contents($tempFilePath, $decryptedContent);
 
-            // Télécharger le fichier dans son format d'origine
+            // Download the file in its original format
             return response()->download($tempFilePath)->deleteFileAfterSend(true);
         }
 

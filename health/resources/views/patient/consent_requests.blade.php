@@ -20,12 +20,12 @@
                             <td>{{ $request->doctor->user->name }}</td>
                             <td>{{ $request->status }}</td>
                             <td>
-                                @if ($request->file === null && $request->file_delete === null)
+                                @if ($request->file_path === null && $request->file_delete === null)
                                     Request to add you to the patient list
                                 @elseif($request->file_delete === null)
-                                    Request to add the file {{ $request->file_name }} in your record
+                                    Request to add the file "{{ $request->file_name }}" in your record
                                 @else
-                                    Request to remove the file {{ $request->file_name }} from your record
+                                    Request to remove the file "{{ $request->file_name }}" from your record
                                 @endif
                             </td>
                             <td>
@@ -41,7 +41,7 @@
                                     @csrf
                                     <input type="hidden" name="doctor_id" value="{{ $request->doctor_id }}">
                                     <input type="hidden" name="action" value="accepted">
-                                    @if ($request->file !== null)
+                                    @if ($request->file_path !== null)
                                         <input type="hidden" name="file_name" value="{{ $request->file_name }}">
                                     @elseif($request->file_delete !== null)
                                         <input type="hidden" name="file_delete" value="{{ $request->file_delete }}">

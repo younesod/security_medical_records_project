@@ -1,5 +1,5 @@
 # secg4-project-health
-
+54314 - Oudahya Younes
 # script
 Lancer le script pour installer les dépendances
 ```sh
@@ -88,4 +88,29 @@ Restart le serveur
 sudo /opt/lampp/lampp restart     
 ```
 Ensuite taper sur un navigateur https://localhost
+
+
+Home page 
+Arrived at this page you can connect as an administrator/patient/doctor
+We have already created an admin, a patient and a doctor for easy testing.
+-> php artisan migrate:fresh --seed
+An administrator is required to deploy the site, otherwise you won't be able to make changes to users.
+(Passwords have been deliberately kept simple for ease of testing, but you can change them if you wish in the following files : 
+database/seeders/UsersTableSeeder.php)
+Administrator : 
+email : admin@gmail.com
+password : admin
+
+Patient : 
+email : test@gmail.com
+password : test
+
+Doctors : 
+email : drwho@gmail.com
+password : who
+
+email : drmaboul@gmail.com
+password : maboul
+
+
 

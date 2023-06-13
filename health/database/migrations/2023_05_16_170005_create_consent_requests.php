@@ -19,7 +19,6 @@ return new class extends Migration
             $table->uuid('patient_id');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
-            $table->binary('file')->nullable();
             $table->string('file_ext')->nullable();
             $table->string('file_path')->nullable();
             $table->string('file_name')->nullable();

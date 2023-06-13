@@ -20,7 +20,7 @@ class UsersTableSeeder extends Seeder
         $user = User::create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
-            'password' => Hash::make('admin', ['rounds' => 12]),
+            'password' => Hash::make('admin'),
             'role' => 'admin',
         ]);
         $user->generateAndStoreKeyPair();
@@ -28,7 +28,7 @@ class UsersTableSeeder extends Seeder
         $doc = User::create([
             'name' => 'Maboul',
             'email' => 'drmaboul@gmail.com',
-            'password' => Hash::make('maboul', ['rounds' => 12]),
+            'password' => Hash::make('maboul'),
             'role' => 'doctor',
         ]);
         $doc->generateAndStoreKeyPair();
@@ -36,7 +36,7 @@ class UsersTableSeeder extends Seeder
         $user = User::create([
             'name' => 'Who',
             'email' => 'drwho@gmail.com',
-            'password' => Hash::make('who', ['rounds' => 12]),
+            'password' => Hash::make('who'),
             'role' => 'doctor',
         ]);
         $user->generateAndStoreKeyPair();
@@ -44,7 +44,7 @@ class UsersTableSeeder extends Seeder
         $user_patient = User::create([
             'name' => 'Leeroy Jenkins',
             'email' => 'test@gmail.com',
-            'password' => Hash::make('test', ['rounds' => 12]),
+            'password' => Hash::make('test'),
             'role' => 'patient',
         ]);
         $user_patient->generateAndStoreKeyPair();

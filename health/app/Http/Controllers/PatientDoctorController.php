@@ -55,11 +55,10 @@ class PatientDoctorController extends Controller
      */
     public function addDoctor(Request $request)
     {
-        // Récupérer l'ID du docteur sélectionné
         $doctorId = $request->post('doctor_id');
 
         if ($doctorId != null) {
-            // Récupérer le patient courant
+            // Retrieve current patient
             if (Auth::check()) {
                 $patient = Auth::user()->patient;
                 $patientId = $patient->patient_id;
@@ -73,15 +72,12 @@ class PatientDoctorController extends Controller
                     return redirect()->back()->with('error', 'This doctor is already associate with you.');
                 }
 
-                // Récupérer le modèle "Doctor"
                 $realDoctor = Doctor::find($doctorId);
-
                 if ($realDoctor) {
-                    // Attacher le patient et le docteur
+                    // Attaching patient and doctor
                     $realDoctor->patients()->attach($patientId, ['doctor_id' => $doctorId]);
                     $patient->save();
 
-                    //recuperer la clé de chiffrement symmétrique -> decrypter -> crypter avec la clé public du médecin associé
                     $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
                     foreach ($files as $file) {
                         $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
@@ -160,8 +156,6 @@ class PatientDoctorController extends Controller
      */
     public function addPatient(Request $request)
     {
-        dd($request);
-        // Récupérer l'ID du patient sélectionné
         $patientId = $request->post('patient_id');
 
 
