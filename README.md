@@ -90,27 +90,27 @@ sudo /opt/lampp/lampp restart
 Ensuite taper sur un navigateur https://localhost
 
 
-Home page 
-Arrived at this page you can connect as an administrator/patient/doctor
-We have already created an admin, a patient and a doctor for easy testing.
--> php artisan migrate:fresh --seed
-An administrator is required to deploy the site, otherwise you won't be able to make changes to users.
+## Home page 
+Arrived at this page you can connect as an administrator/patient/doctor<br>
+We have already created an admin, a patient and a doctor for easy testing.<br>
+-> php artisan migrate:fresh --seed<br>
+An administrator is required to deploy the site, otherwise you won't be able to make changes to users.<br>
 (Passwords have been deliberately kept simple for ease of testing, but you can change them if you wish in the following files : 
-database/seeders/UsersTableSeeder.php)
-Administrator : 
-email : admin@gmail.com
-password : admin
+database/seeders/UsersTableSeeder.php)<br>
+Administrator :<br> 
+email : admin@gmail.com<br>
+password : admin<br>
 
-Patient : 
-email : test@gmail.com
-password : test
+Patient : <br>
+email : test@gmail.com<br>
+password : test<br>
 
-Doctors : 
-email : drwho@gmail.com
-password : who
+Doctors : <br>
+email : drwho@gmail.com<br>
+password : who<br>
 
-email : drmaboul@gmail.com
-password : maboul
+email : drmaboul@gmail.com<br>
+password : maboul<br>
 
 
 
