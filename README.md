@@ -49,10 +49,15 @@ Open GitBash and navigate to the `secg4-project-health/health` directory :
 ```sh
 Cd secg4-project-health/health
 composer install
-php artisan migrate:fresh --seed
 ```
 Now, choose a location to store the private keys. In the `.env` file, 
 set `PATH_TO_PRIVATE_KEY` to the desired directory where the private keys will be generated.
+
+You also need to populate the database with this command:
+
+```sh
+php artisan migrate:fresh --seed
+```
 
 
 ## Setup Xampp
