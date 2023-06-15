@@ -2,6 +2,8 @@
 54314 - Oudahya Younes
 <br>
 56149 - El Mahsini Aimen
+<br>
+54637 - Zidi Billal
 
 # Porject Summary
 
@@ -49,6 +51,7 @@ Open GitBash and navigate to the `secg4-project-health/health` directory :
 ```sh
 Cd secg4-project-health/health
 composer install
+php artisan key:generate
 ```
 Now, choose a location to store the private keys. In the `.env` file, 
 set `PATH_TO_PRIVATE_KEY` to the desired directory where the private keys will be generated.
@@ -71,14 +74,14 @@ Add the following code to `xampp/apache/conf/extra/httpd-vhosts.conf`:
 
     <VirtualHost *:443>
         ServerName localhost
-        DocumentRoot "/chemin/vers/votre/projet/public"   
+        DocumentRoot "/path/to/your/project/public"   
     
         SSLEngine on
-        SSLCertificateFile "/chemin/vers/votre/certificat.crt"
-        SSLCertificateKeyFile "/chemin/vers/votre/cle_certificat.key"           	
+        SSLCertificateFile "/path/to/your/certificat.crt"
+        SSLCertificateKeyFile "/path/to/your/key_certificat.key"           	
 
     
-        <Directory "/chemin/vers/votre/projet/public">       
+        <Directory "/path/to/your/project/public">       
             Options Indexes FollowSymLinks
             AllowOverride All
             Require all granted
@@ -86,7 +89,7 @@ Add the following code to `xampp/apache/conf/extra/httpd-vhosts.conf`:
     </VirtualHost>
 
 ```
-Please make sure to replace `"/chemin/vers/votre/projet"` with the actual path to your project directory and `"/chemin/vers/votre/certificat"` with the actual paths to your SSL certificate files.(in "`certif`" folder)
+Please make sure to replace `"/path/to/your/project/"` with the actual path to your project directory and `"path/to/your/certificat"` with the actual paths to your SSL certificate files.(in "`certif`" folder)
 
 # Running the Project
 Open Xampp and start the Apache server.
