@@ -103,6 +103,7 @@ We have already created an admin, a patient and a doctor for easy testing.<br>
 An administrator is required to deploy the site, otherwise you won't be able to make changes to users.<br>
 (Passwords have been deliberately kept simple for ease of testing, but you can change them if you wish in the following files : 
 database/seeders/UsersTableSeeder.php)<br>
+NB: it should be noted that these passwords are not at all secure and that you must have a strong password.(Just used for tests)
 
 Administrator :<br> 
 email : admin@gmail.com<br>
