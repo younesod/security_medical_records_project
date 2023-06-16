@@ -5,7 +5,7 @@
 <br>
 54637 - Zidi Billal
 
-# Porject Summary
+# Project Summary
 
 ## Context
 The goal of this project was to develop a secure client/server system for handling patient's medical records, similar to those found in hospitals. The main focus was on implementing robust security measures throughout the system, considering both the security policy and data storage aspects. We had the freedom to choose appropriate protocols, languages, and techniques. The project emphasized the importance of using effective security techniques, regardless of whether they were covered in class or not.
@@ -95,7 +95,7 @@ Please make sure to replace `"/path/to/your/project/"` with the actual path to y
 Open Xampp and start the Apache server.
 Now, open a web browser and navigate to `https://localhost`.
 
-## Home page 
+# Home page 
 Arrived at this page you can connect as an administrator/patient/doctor<br>
 We have already created an admin, a patient and a doctor for easy testing.<br>
 -> php artisan migrate:fresh --seed<br>
@@ -118,6 +118,23 @@ password : who<br>
 
 email : drmaboul@gmail.com<br>
 password : maboul<br>
+
+## Login/Registration
+To create an account you need to fill the fields.<br>
+To login, you just need to put your email and password.
+
+## Patient/Doctor/Admin
+You can login as differents types of user with differents actions<br>
+### Patient
+- The patient can add/remove a doctor
+- The patient can add/remove a file from his record
+- The patient handles notification request : Accept/Reject requests from doctors
+### Doctor
+- The doctor can request the adding/removing of a patient record
+- The doctor can remove a patient from his lists of patient
+### Admin
+- The admin can remove a user
+- The admin can change the roles of a user
 
 
 
