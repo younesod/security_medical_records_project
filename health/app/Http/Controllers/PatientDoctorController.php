@@ -80,7 +80,7 @@ class PatientDoctorController extends Controller
 
                     $files = MedicalRecord::where('user_id', Auth::user()->id)->get();
                     foreach ($files as $file) {
-                        $encryptedKey = Storage::get('public/medical_records/' . $file->name . '.key');
+                        $encryptedKey = Storage::get('public/medical_records/' .$file->name . Auth::user()->email . '.key');
                         $decryptedKey = '';
                         $filePrivateKey = file_get_contents(Auth::user()->private_key);
                         openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);

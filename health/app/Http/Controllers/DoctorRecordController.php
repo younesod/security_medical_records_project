@@ -185,7 +185,7 @@ class DoctorRecordController extends Controller
             $filePrivateKey = file_get_contents($user->private_key);
             openssl_private_decrypt($encryptedKey, $decryptedKey, $filePrivateKey);
             $decryptedContent = openssl_decrypt($encryptedContent, 'AES-256-CBC', $decryptedKey, OPENSSL_RAW_DATA, $iv);
-
+            
             // Créer un fichier temporaire avec le contenu décrypté
             $tempFilePath = sys_get_temp_dir() . '/' . $name;
             file_put_contents($tempFilePath, $decryptedContent);
